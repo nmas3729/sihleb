@@ -1,104 +1,190 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Check, Menu, X } from 'lucide-react'
+import { FormEvent, useEffect, useState } from 'react'
+import { track } from '@vercel/analytics'
+import {
+  ArrowDownRight,
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  ChevronDown,
+  Menu,
+  X,
+} from 'lucide-react'
+
+const logoUrl = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/SihleB-Logo-JpSPCq41GEy8rmSC4pNgsNT35LqblJ.jpeg'
+const whatsappUrl = 'https://wa.me/27674877278?text=Hi%20SihleB%2C%20I%27d%20like%20to%20chat%20about%20a%20website%20project.'
+
+function handleWhatsAppClick() {
+  track('whatsapp_click')
+}
+
+function handleEmailClick() {
+  track('email_click')
+}
+
+function handlePortfolioProjectView() {
+  track('portfolio_project_view')
+}
+
+function handlePricingPackageClick() {
+  track('pricing_package_click')
+}
+
+function handleHostingClick() {
+  track('hosting_click')
+}
 
 const services = [
-  ['01', 'Web design', 'A distinctive visual direction built around the business, not a template.'],
-  ['02', 'Web development', 'Responsive, production-ready engineering for real-world use.'],
-  ['03', 'E-commerce', 'Digital experiences that move customers from discovery to purchase.'],
-  ['04', 'Hosting', 'A reliable home for your website after launch, with SSL and backups.'],
-  ['05', 'Support', 'Human technical support when changes, questions or improvements are needed.'],
-]
-
-const standards = [
-  ['01', 'Fast', 'Performance is part of the build, not an afterthought.'],
-  ['02', 'Responsive', 'Designed and tested across phones, tablets and desktops.'],
-  ['03', 'Search ready', 'Strong technical foundations for search engines.'],
-  ['04', 'Secure', 'Modern security practices from development through deployment.'],
-  ['05', 'Maintainable', 'Built so the website can evolve with the business.'],
-]
-
-const projects = [
-  { name: 'Travel Class SA', type: 'Luxury Travel', description: 'A premium travel website designed and developed by SihleB Digital Studio.', className: 'project-travel' },
-  { name: 'After Dark', type: 'Hospitality', description: 'A bold digital presence for a hospitality brand with a late-night point of view.', className: 'project-dark' },
-  { name: 'Field Notes', type: 'Consulting', description: 'A considered editorial system for ideas, expertise and useful perspective.', className: 'project-paper' },
-  { name: 'The Good Work', type: 'Creative studio', description: 'A clear, expressive home for a studio that cares about the details.', className: 'project-lime' },
+  ['01', 'Web Design', 'Websites that look like you, sound like you, and make it easier for people to choose you.'],
+  ['02', 'Web Development', 'A fast, considered build underneath the design — engineered to perform, scale and stay maintainable.'],
+  ['03', 'E-commerce', 'A smoother path from discovery to purchase, designed around how your customers actually buy.'],
+  ['04', 'Hosting', 'Fast, reliable hosting with the technical side handled for you.'],
+  ['05', 'Support', 'A real person when you need a change, an answer or a fresh idea.'],
 ]
 
 const plans = [
-  { number: '01', name: 'Starter', price: 'R7,500', description: 'For businesses that need a sharp, professional online presence without unnecessary complexity.', features: ['Up to 3 pages', 'Custom website design', 'Mobile-first experience', 'WhatsApp/contact integration', 'Basic SEO setup', 'Contact/enquiry form', 'SSL and launch support'], action: 'GET STARTED' },
-  { number: '02', name: 'Business', price: 'R14,500', description: 'For businesses that need a stronger website to support enquiries and growth.', features: ['Up to 7 pages', 'Custom website design', 'Content structure', 'SEO foundations', 'Lead/contact forms', 'Analytics setup', 'WhatsApp integration', 'Launch support'], action: 'CHOOSE BUSINESS', featured: true },
-  { number: '03', name: 'Signature', price: 'R25,000', description: 'For brands that need a completely tailored digital experience.', features: ['Fully custom website', 'Advanced functionality', 'E-commerce options', 'Advanced forms/integrations', 'Strategy and advanced SEO', 'Performance optimisation', 'Priority support'], action: 'START A CONVERSATION' },
+  { name: 'Starter', price: 'R8,000', intro: 'For businesses getting properly online.', features: ['Up to 3 pages', 'Custom website design', 'Mobile-first experience', 'WhatsApp/contact integration', 'Basic SEO setup', 'Launch support'], action: 'GET STARTED' },
+  { name: 'Business', price: 'R13,700', intro: 'For businesses ready to generate more from their website.', features: ['Up to 7 pages', 'Custom website design', 'Content structure', 'SEO foundations', 'Lead/contact forms', 'Analytics setup', 'Launch support'], action: 'CHOOSE BUSINESS', featured: true },
+  { name: 'Signature', price: 'R24,900', intro: 'For brands requiring a fully bespoke digital experience.', features: ['Fully custom experience', 'Advanced functionality', 'E-commerce options', 'Strategy', 'SEO', 'Priority support'], action: 'START A CONVERSATION' },
 ]
 
-const process = [
-  ['01', 'Discover', 'Understand the business, audience and objectives.'],
-  ['02', 'Define', 'Establish structure, content and direction.'],
-  ['03', 'Design', 'Create the visual language and experience.'],
-  ['04', 'Engineer', 'Turn the design into a responsive production-ready website.'],
-  ['05', 'Refine', 'Test responsiveness, performance, accessibility and details.'],
-  ['06', 'Launch', 'Deploy the website and provide support where required.'],
-]
+const process = ['A good conversation', 'A clear direction', 'A first impression', 'The build', 'The handover', 'A long-term home']
 
 export default function Page() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [signalStage, setSignalStage] = useState(0)
+  const [cursor, setCursor] = useState({ x: 0, y: 0, visible: false })
+  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
+
+  const handleProjectSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const form = event.currentTarget
+    const data = Object.fromEntries(new FormData(form).entries())
+    setFormStatus('sending')
+    track('project_enquiry_started')
+
+    try {
+      const response = await fetch('/api/project-enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, requestId: crypto.randomUUID() }),
+      })
+
+      if (!response.ok) throw new Error('Project enquiry failed')
+      setFormStatus('success')
+      track('project_enquiry_submitted')
+      form.reset()
+    } catch {
+      setFormStatus('error')
+      track('project_enquiry_failed')
+    }
+  }
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [menuOpen])
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 32)
+      const progress = Math.min(4, Math.max(0, Math.floor((window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight)) * 5)))
+      setSignalStage(progress)
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
-  }, [menuOpen])
-
-  const closeMenu = () => setMenuOpen(false)
+    const onConversionClick = (event: MouseEvent) => {
+      const target = event.target
+      if (!(target instanceof Element)) return
+      if (target.closest('a.project')) track('portfolio_project_view')
+      else if (target.closest('.editorial-plan .button')) track('pricing_package_click')
+      else if (target.closest('#hosting .button')) track('hosting_click')
+      else if (target.closest('a[href^="mailto:"]')) track('email_click')
+    }
+    document.addEventListener('click', onConversionClick)
+    return () => document.removeEventListener('click', onConversionClick)
+  }, [])
 
   return (
     <main className="site-shell">
-      <nav className={`site-nav ${scrolled ? 'is-scrolled' : ''}`} aria-label="Primary navigation">
-        <a className="nav-brand" href="#top" aria-label="SihleB Digital Studio home"><img src="/sihleb-log.webp" alt="SihleB logo" width="500" height="500" /><span>Digital Studio</span></a>
-        <div className="nav-links"><a href="#services">Services</a><a href="#work">Work</a><a href="#hosting">Hosting</a><a href="#about">About</a></div>
-        <a className="nav-cta" href="#contact">START A PROJECT <ArrowUpRight size={15} /></a>
-        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen}>{menuOpen ? <X /> : <Menu />}</button>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@graph': [
+          { '@type': 'Organization', name: 'SihleB Web Design + Hosting', url: 'https://sihleb.co.za', email: 'hello@sihleb.co.za', parentOrganization: { '@type': 'Organization', name: 'NMAS INNOVATIONS (Pty) Ltd' } },
+          { '@type': 'WebSite', name: 'SihleB Web Design + Hosting', url: 'https://sihleb.co.za', inLanguage: 'en-ZA' },
+          { '@type': 'Service', name: 'Web design, development, hosting and support', provider: { '@type': 'Organization', name: 'SihleB Web Design + Hosting' }, areaServed: 'ZA' },
+        ],
+      }) }} />
+      {formStatus === 'success' && <div className="conversion-confirmation conversion-confirmation-success" role="status"><strong>ENQUIRY SENT.</strong><span>Thanks — we&apos;ve received your project enquiry.<br />We&apos;ll be in touch soon.</span><div><a href="#top">BACK TO HOME</a><a href="#work">VIEW OUR WORK</a></div></div>}
+      {formStatus === 'error' && <div className="conversion-confirmation conversion-confirmation-error" role="alert"><strong>SOMETHING WENT WRONG.</strong><span>We couldn&apos;t send your enquiry right now.<br />Please try again or contact us directly:</span><a href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA</a><a href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick}>CHAT ON WHATSAPP</a></div>}
+      <nav className={`nav-wrap ${scrolled ? 'is-scrolled' : ''}`} aria-label="Primary navigation">
+        <a href="#top" className="brand-lockup" aria-label="SihleB home">
+          <img src={logoUrl} alt="SihleB Web Design + Hosting" />
+        </a>
+        <div className="nav-links">
+          <a href="#services">Services</a><a href="#work">Work</a><a href="#hosting">Hosting</a><a href="#about">About</a>
+        </div>
+        <div className="nav-end"><span className="online"><i /> ONLINE</span><a className="nav-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp">WHATSAPP</a><a className="nav-cta" href="#contact">START A PROJECT <ArrowUpRight size={14} /></a></div>
+        <button type="button" className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen}>{menuOpen ? <X /> : <Menu />}</button>
       </nav>
+      {menuOpen && <div className="mobile-menu" role="dialog" aria-modal="true" aria-label="Mobile navigation"><a href="#services" onClick={() => setMenuOpen(false)}>Services</a><a href="#work" onClick={() => setMenuOpen(false)}>Work</a><a href="#hosting" onClick={() => setMenuOpen(false)}>Hosting</a><a href="#about" onClick={() => setMenuOpen(false)}>About</a><a className="button button-blue" href="#contact" onClick={() => setMenuOpen(false)}>START A PROJECT <ArrowUpRight size={15} /></a><a className="mobile-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp">CHAT ON WHATSAPP <ArrowUpRight size={15} /></a><a className="mobile-email" href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA</a></div>}
 
-      {menuOpen && <div className="mobile-menu"><a href="#services" onClick={closeMenu}>Services</a><a href="#work" onClick={closeMenu}>Work</a><a href="#hosting" onClick={closeMenu}>Hosting</a><a href="#about" onClick={closeMenu}>About</a><a className="button button-lime" href="#contact" onClick={closeMenu}>START A PROJECT <ArrowUpRight size={16} /></a></div>}
-
-      <section id="top" className="hero">
-        <div className="hero-grid" aria-hidden="true" /><div className="hero-index">01 <span>/ 06</span></div>
-        <div className="hero-content"><p className="eyebrow"><span>DESIGN / ENGINEERING / HOSTING</span></p><h1>WEBSITES<br />BUILT TO<br /><em>BE TAKEN</em><br />SERIOUSLY.</h1><p className="hero-copy">Premium web design and development for businesses that want more from their online presence.</p><div className="hero-actions"><a className="button button-lime" href="#contact">START A PROJECT <ArrowUpRight size={16} /></a><a className="link-arrow" href="#work">SEE THE WORK <ArrowDownRight size={17} /></a></div></div>
-        <div className="hero-bottom"><span>SIHLEB DIGITAL STUDIO</span><span>SCROLL TO EXPLORE <ArrowDownRight size={15} /></span></div>
+      <section id="top" className="hero dark-section" onMouseMove={(event) => setCursor({ x: event.clientX, y: event.clientY, visible: true })} onMouseLeave={() => setCursor((current) => ({ ...current, visible: false }))}>
+        <div className="hero-grid" /><div className="hero-field-label field-label-a">SOUTH AFRICA / ONLINE</div><div className="hero-field-label field-label-b">SIGNAL / 00{signalStage + 1}</div><div className="hero-marker marker-a" /><div className="hero-marker marker-b" /><div className="hero-orbit orbit-a" /><div className="hero-orbit orbit-b" /><div className="scan-line" /><div className={`signal-cursor ${cursor.visible ? 'is-visible' : ''}`} style={{ left: cursor.x, top: cursor.y }}><span /></div>
+        <div className="hero-copy">
+          <div className="eyebrow reveal"><span>SIHLEB / DIGITAL STUDIO</span><span className="available"><i /> AVAILABLE FOR NEW PROJECTS</span></div>
+          <h1 className="hero-title reveal delay-1">YOUR BUSINESS.<br /><span>BUILT FOR THE WEB.</span></h1>
+          <div className="hero-rule reveal delay-2"><i /><i /><i /></div>
+          <p className="hero-lede reveal delay-2">Beautiful websites, reliable hosting and ongoing support — without the technical headache.</p>
+          <div className="hero-actions reveal delay-3"><a className="button button-blue" href="#contact">START A PROJECT <ArrowUpRight size={16} /></a><a className="text-link" href="#work">VIEW OUR WORK <ArrowDownRight size={16} /></a></div>
+        </div>
+        <div className="hero-footer"><span>EST. 2023 / SOUTH AFRICA</span><span>SCROLL TO EXPLORE <ArrowDownRight size={15} /></span></div>
       </section>
 
-      <section className="intro section-paper"><p className="section-label">[ THE POINT ]</p><div className="split-heading"><h2>YOUR WEBSITE<br />IS OFTEN THE<br /><em>FIRST DECISION.</em></h2><div><p className="lead">Before a customer calls, visits or enquires, they are deciding whether your business feels credible.</p><p className="body-copy">SihleB builds the part of your business people meet first: distinctive websites, engineered properly and looked after beyond launch.</p></div></div></section>
+      <section className="statement section-light">
+        <div className="section-kicker">[ A DIFFERENT KIND OF DIGITAL STUDIO ]</div>
+        <div className="statement-layout"><h2>GOOD WEBSITES<br /><em>SHOULD DO MORE.</em></h2><div><p className="large-copy">They should make your business feel credible before you say a word. They should turn attention into action — and make running your business feel a little lighter.</p><p className="muted-copy">That’s the space SIHLEB works in: thoughtful design, dependable technology, and a relationship that doesn’t end when the site goes live.</p><p className="statement-support">DESIGN + DEVELOPMENT + HOSTING + SUPPORT</p></div></div>
+        <div className="blue-dash" />
+      </section>
 
-      <section id="services" className="services section-paper"><div className="section-intro"><div><p className="section-label">[ WHAT WE DO ]</p><h2>DESIGN.<br />BUILD.<br /><em>HOST.</em></h2></div><p className="body-copy">One team from first conversation to the website&apos;s long-term home.</p></div><div className="service-list">{services.map(([number, name, description]) => <a className="service-row" href="#contact" key={number}><span>{number}</span><h3>{name}</h3><p>{description}</p><ArrowUpRight className="row-arrow" size={20} /></a>)}</div></section>
+      <section className="credibility section-light"><div><div className="section-kicker">[ BUILT FOR ]</div><h2>BUSINESSES<br /><em>THAT MEAN BUSINESS.</em></h2></div><div className="credibility-copy"><p className="large-copy">We work with businesses that have something worth saying — and want their online presence to reflect it.</p><div className="audience-list"><span>Professional services</span><span>Hospitality</span><span>Creative businesses</span><span>Growing companies</span><span>Founders</span><span>Established brands</span></div></div><div className="proof-note"><span>THE WORK SPEAKS FIRST</span><strong>Case studies and client stories are being added as each project launches.</strong></div></section>
 
-      <section id="work" className="work section-ink"><div className="section-intro work-heading"><div><p className="section-label">[ SELECTED WORK ]</p><h2>BUILT WITH<br /><em>INTENTION.</em></h2></div><p className="body-copy">A selection of websites designed and developed by SihleB Digital Studio.</p></div><div className="project-grid">{projects.map((project, index) => <a className={`project ${project.className} ${index === 0 ? 'project-featured' : ''}`} href={project.className === 'project-travel' ? 'https://prototype.nmas.site' : '#contact'} target={project.className === 'project-travel' ? '_blank' : undefined} rel={project.className === 'project-travel' ? 'noopener noreferrer' : undefined} key={project.name}><div className="project-art"><span className="project-number">0{index + 1}</span><strong>{project.name}</strong><ArrowUpRight className="project-art-arrow" size={27} /></div><div className="project-meta"><div><span>{project.type}</span><h3>{project.name}</h3><p>{project.description}</p></div><span className="view-project">VIEW PROJECT <ArrowUpRight size={15} /></span></div></a>)}</div></section>
+      <section id="services" className="services section-light">
+        <div className="section-heading"><div><div className="section-kicker">[ WHAT WE DO ]</div><h2>THE RIGHT THINGS.<br /><em>DONE WELL.</em></h2></div><p>One team for the parts of your online presence that matter most.</p></div>
+        <div className="service-list">{services.map(([num, title, description]) => <a className="service-row" href="#contact" key={num}><span className="service-num">{num}</span><h3>{title}</h3><p>{description}</p><ArrowUpRight className="row-arrow" size={22} /></a>)}</div>
+      </section>
 
-      <section className="why section-paper"><div className="why-mark" aria-hidden="true"><span>DESIGN</span><b>+</b><span>ENGINEER</span><b>+</b><span>HOST</span></div><div><p className="section-label">[ WHY SIHLEB ]</p><h2>NOT JUST A<br />DESIGNER.<br /><em>NOT JUST A<br />DEVELOPER.</em></h2><p className="lead">One person who understands both.</p><p className="body-copy">Good design gets attention. Good engineering makes it work. SihleB brings both together, creating websites that look considered, load quickly, work beautifully across devices and are built around how real customers use them.</p></div><div className="pillars">{[['01', 'Design', 'Distinctive visual direction built around the business.'], ['02', 'Development', 'Clean, responsive engineering underneath the experience.'], ['03', 'Performance', 'Lightweight pages and optimised assets from the start.'], ['04', 'Care', 'Hosting, security, backups and support after launch.']].map(([number, title, text]) => <div className="pillar" key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></div>)}</div></section>
+      <section id="work" className="portfolio dark-section" onMouseMove={(event) => setCursor({ x: event.clientX, y: event.clientY, visible: true })} onMouseLeave={() => setCursor((current) => ({ ...current, visible: false }))}><div className={`portfolio-cursor ${cursor.visible ? 'is-visible' : ''}`} style={{ left: cursor.x, top: cursor.y }}>VIEW PROJECT <ArrowUpRight size={12} /></div><div className="portfolio-head"><div><div className="section-kicker">[ SELECTED WORK ]</div><h2>BUILT TO BE<br /><em>REMEMBERED.</em></h2></div><a className="text-link light-link" href="#contact">START A PROJECT <ArrowUpRight size={15} /></a></div><div className="project-grid"><a className="project project-main" href="#contact" aria-label="View After Dark hospitality project"><div className="project-art art-one"><span>AFTER<br />DARK</span><b>AD</b></div><div className="project-meta"><span>AFTER DARK / HOSPITALITY</span><ArrowUpRight size={19} /></div></a><a className="project project-side" href="#contact" aria-label="View Field Notes consulting project"><div className="project-art art-two"><span>FIELD<br />NOTES</span><div className="grid-mark">{'///'}</div></div><div className="project-meta"><span>FIELD NOTES / CONSULTING</span><ArrowUpRight size={19} /></div></a><a className="project project-wide" href="#contact" aria-label="View The Good Work creative studio project"><div className="project-art art-three"><span>THE<br />GOOD<br /><i>WORK</i></span><div className="circle-mark">TGW</div></div><div className="project-meta"><span>THE GOOD WORK / CREATIVE STUDIO</span><ArrowUpRight size={19} /></div></a></div></section>
 
-      <section className="standard section-sand"><div className="section-intro"><div><p className="section-label">[ THE SIHLEB STANDARD ]</p><h2>BUILT FOR<br /><em>THE REAL WORLD.</em></h2></div><p className="body-copy">A website can be beautiful and dependable. That is the standard.</p></div><div className="standard-grid">{standards.map(([number, title, text]) => <div className="standard-item" key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></div>)}</div></section>
+      <section className="why section-light"><div className="why-visual"><div className="role role-a">DESIGN</div><div className="role role-b">BUILD</div><div className="role role-c">HOST</div><div className="signal-path"><span className={`signal-dot stage-${signalStage}`} /></div><div className="why-s">S<span>B</span></div><div className="online-lockup"><i /> ONLINE</div></div><div className="why-copy"><div className="section-kicker">[ WHY SIHLEB ]</div><h2>ONE TEAM.<br /><em>NO TECHNICAL<br />HEADACHE.</em></h2><p className="large-copy">Your website shouldn’t feel like a puzzle you’re responsible for solving. We bring the creative, practical and technical pieces together — so you can get on with your business.</p><p className="why-detail">DESIGN <span>→</span> BUILD <span>→</span> HOST <span>→</span> SUPPORT<br /><strong>ONE TEAM. ONE POINT OF CONTACT.</strong></p><a className="text-link dark-link" href="#about">MEET SIHLEB <ArrowUpRight size={15} /></a></div></section>
 
-      <section className="confidence section-ink"><p className="section-label">[ THE BIG IDEA ]</p><h2>YOU&apos;RE NOT<br />BUYING A<br /><em>WEBSITE.</em></h2><p className="confidence-copy">You&apos;re buying confidence that when someone searches for your business, they find something that reflects the quality of what you actually do. Confidence that it works on the phone in someone&apos;s hand, loads quickly, explains what you offer and has someone there when you need help.</p></section>
+      <section className="performance section-white"><div className="section-heading"><div><div className="section-kicker">[ THE SIHLEB STANDARD ]</div><h2>A BETTER<br /><em>FIRST IMPRESSION.</em></h2></div><p>Everything we build is designed to feel good and work hard.</p></div><div className="performance-grid">{[['01','FAST','No waiting around.'],['02','RESPONSIVE','Looks right everywhere.'],['03','SEARCH READY','SEO foundations included.'],['04','SECURE','Peace of mind included.'],['05','RELIABLE','Ready when you are.'],['06','SUPPORTED','A real person when you need one.']].map(([num,title,desc]) => <div className="performance-item" key={num}><span>{num}</span><div className="meter"><i /></div><h3>{title}</h3><p>{desc}</p></div>)}</div></section>
 
-      <section id="hosting" className="hosting section-sand"><div><p className="section-label">[ AFTER LAUNCH ]</p><h2>LAUNCH<br />ISN&apos;T<br /><em>THE END.</em></h2></div><div className="hosting-copy"><p className="lead">Your website shouldn&apos;t become someone else&apos;s problem the moment it goes live.</p><p className="body-copy">SihleB can provide the hosting, security, backups and technical support that keep your website healthy after launch.</p><div className="hosting-offer"><div><span>WEBSITE HOSTING + SUPPORT</span><strong>R149 <small>/ MONTH</small></strong></div><ul><li>Reliable hosting</li><li>SSL included</li><li>Website backups</li><li>Security monitoring</li><li>Website maintenance</li><li>Human technical support</li></ul></div><a className="link-arrow" href="mailto:hello@sihleb.co.za?subject=Hosting%20and%20support">VIEW HOSTING <ArrowUpRight size={16} /></a></div></section>
+      <section id="hosting" className="hosting dark-section"><div className="hosting-copy"><div className="section-kicker">[ HOSTING + SUPPORT ]</div><h2>A BETTER HOME<br /><em>FOR YOUR WEBSITE.</em></h2><p className="large-copy">Launch day is not the finish line. We keep your site fast, secure and cared for, so you don’t have to think about what’s happening behind the scenes.</p><a className="button button-blue" href="#plans">VIEW HOSTING PLANS <ArrowUpRight size={16} /></a></div><div className="infra"><div className="infra-node">DOMAIN</div><div className="infra-line"><i /></div><div className="infra-node">DESIGN</div><div className="infra-line"><i /></div><div className="infra-node">BUILD</div><div className="infra-line"><i /></div><div className="infra-node active">HOST / SIHLEB</div><div className="infra-line"><i /></div><div className="infra-node online-node">● ONLINE</div></div><div className="hosting-features">{['Reliable hosting','SSL included','Daily backups','Fast delivery','Active security','Human support'].map((item, i) => <span key={item}><b>0{i + 1}</b>{item}</span>)}</div></section>
 
-      <section id="plans" className="plans section-paper"><div className="section-intro"><div><p className="section-label">[ WEBSITE INVESTMENT ]</p><h2>START<br />SOMEWHERE<br /><em>GOOD.</em></h2></div><p className="body-copy">Prices shown are starting points. Final pricing depends on scope, content, functionality and integrations required.</p></div><div className="plan-grid">{plans.map(plan => <article className={`plan ${plan.featured ? 'featured' : ''}`} key={plan.name}><div className="plan-top"><span>{plan.number} / {plan.name}</span>{plan.featured && <b>MOST POPULAR</b>}</div><strong className="price">{plan.price}</strong><p>{plan.description}</p><ul>{plan.features.map(feature => <li key={feature}><Check size={15} />{feature}</li>)}</ul><a className={`button ${plan.featured ? 'button-lime' : 'button-outline'}`} href="#contact">{plan.action} <ArrowUpRight size={15} /></a></article>)}</div></section>
+      <section id="plans" className="plans section-light"><div className="section-heading"><div><div className="section-kicker">[ WEBSITE INVESTMENT ]</div><h2>START SOMEWHERE<br /><em>GOOD.</em></h2></div><p>Every business is different. These are starting points — we&apos;ll recommend what actually makes sense for your business.</p></div><div className="plan-list editorial-plans">{plans.map((plan, index) => <article className={`plan editorial-plan ${plan.featured ? 'featured' : ''}`} key={plan.name}><div className="plan-top"><span>{String(index + 1).padStart(2, '0')} / {plan.name}</span>{plan.featured && <span className="plan-badge">MOST POPULAR</span>}</div><div className="plan-price"><small>FROM</small>{plan.price}</div><p>{plan.intro}</p><ul>{plan.features.map(feature => <li key={feature}><Check size={14} />{feature}</li>)}</ul><a className={`button ${plan.featured ? 'button-blue' : 'button-outline'}`} href="#contact">{plan.action} <ArrowUpRight size={15} /></a></article>)}</div><div className="hosting-offer"><div><div className="section-kicker">[ AFTER LAUNCH ]</div><h3>YOUR WEBSITE<br /><em>NEEDS A HOME.</em></h3><p>Once your website is live, SihleB keeps it fast, secure and cared for.</p></div><div className="hosting-offer-price"><span>HOSTING + SUPPORT</span><strong>R250<small>/ MONTH</small></strong><ul><li>Reliable hosting</li><li>SSL included</li><li>Regular backups</li><li>Security monitoring</li><li>Website maintenance</li><li>Human support</li></ul><a className="text-link dark-link" href="#hosting">VIEW HOSTING <ArrowUpRight size={15} /></a></div></div><div className="investment-statement"><strong>ONE WEBSITE.<br />ONE TEAM.<br /><em>FROM FIRST IDEA<br />TO ONLINE.</em></strong><p>Design, build, hosting and support — without having to manage different people for every part of your website.</p></div><div className="pricing-footer"><span>Prices shown are starting points. Final pricing depends on the scope, content and functionality required.</span><a className="text-link dark-link" href="#contact">NOT SURE WHICH ONE IS RIGHT FOR YOU? TALK TO SIHLEB <ArrowUpRight size={15} /></a></div></section>
 
-      <section className="process section-white"><p className="section-label">[ HOW IT WORKS ]</p><div className="section-intro"><h2>FROM FIRST<br />CONVERSATION<br /><em>TO LAUNCH.</em></h2><p className="body-copy">Simple, professional and transparent. Every stage has a purpose.</p></div><div className="process-grid">{process.map(([number, title, text]) => <div className="process-step" key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></div>)}</div></section>
+      <section className="process section-white"><div className="section-kicker">[ HOW IT WORKS ]</div><div className="process-intro"><h2>FROM “WE SHOULD”<br /><em>TO “WE’RE LIVE.”</em></h2><p className="large-copy">No drawn-out process. No mystery. Just good work, in a straight line.</p></div><div className="process-list">{process.map((step, i) => <div className="process-step" key={step}><span>0{i + 1}</span><i /><h3>{step}</h3></div>)}</div></section>
 
-      <section id="about" className="about section-paper"><div className="about-stamp">SB<span>/</span></div><div><p className="section-label">[ ABOUT SIHLEB ]</p><h2>THE PERSON<br />BEHIND THE<br /><em>WEBSITE.</em></h2><p className="lead">SihleB is the web design and hosting division of NMAS INNOVATIONS (Pty) Ltd.</p><p className="body-copy">Helping businesses show up properly online with thoughtful design, dependable technology and ongoing support.</p></div></section>
+      <section id="about" className="about section-light"><div className="about-mark">S<span>B</span></div><div><div className="section-kicker">[ ABOUT SIHLEB ]</div><h2>DESIGN.<br />BUILD.<br /><em>HOST.</em></h2><p className="large-copy">SihleB is the web design and hosting division of NMAS INNOVATIONS (Pty) Ltd, helping businesses show up properly online with thoughtful design, dependable hosting and ongoing support.</p><a className="text-link dark-link" href="#contact">MORE ABOUT SIHLEB <ArrowUpRight size={15} /></a></div></section>
 
-      <section id="contact" className="contact section-ink"><p className="section-label">[ START HERE ]</p><h2>READY TO BE<br /><em>TAKEN SERIOUSLY</em><br />ONLINE?</h2><p className="lead">Tell us where you&apos;re going. We&apos;ll help you build the way there.</p><div className="hero-actions"><a className="button button-lime" href="mailto:hello@sihleb.co.za?subject=Start%20a%20project">START A PROJECT <ArrowUpRight size={16} /></a><a className="link-arrow light-link" href="mailto:hello@sihleb.co.za">TALK TO SIHLEB <ArrowRight size={17} /></a></div></section>
+      <section id="contact" className="final-cta dark-section"><div className="cta-lines" /><div className="section-kicker">[ LET’S MAKE SOMETHING GOOD ]</div><h2>READY TO GET<br /><em>ONLINE?</em></h2><p>Tell us where you’re going. We’ll help you build the way there.</p><form className="project-form" onSubmit={handleProjectSubmit} aria-busy={formStatus === 'sending'}><div className="form-grid"><label><span>NAME</span><input name="name" type="text" autoComplete="name" required /></label><label><span>BUSINESS</span><input name="business" type="text" autoComplete="organization" required /></label><label><span>EMAIL</span><input name="email" type="email" autoComplete="email" required /></label><label><span>WHAT DO YOU NEED?</span><select name="service" defaultValue="Not sure yet — I’d like some guidance."><option>Web Design</option><option>Web Development</option><option>E-commerce</option><option>Hosting</option><option>Website Care</option><option>Not sure yet — I’d like some guidance.</option></select></label><label><span>BUDGET / STARTING POINT</span><select name="budget" defaultValue="Not sure yet"><option>Not sure yet</option><option>R8,000 Starter</option><option>R13,700 Business</option><option>R24,900 Signature</option></select></label><label className="form-message"><span>MESSAGE</span><textarea name="message" rows={4} required /></label><div className="form-trap" aria-hidden="true"><label>Website<input name="website" type="text" tabIndex={-1} autoComplete="off" /></label></div></div><div className="hero-actions"><button className="button button-blue" type="submit" disabled={formStatus === 'sending'}>{formStatus === 'sending' ? 'SENDING…' : 'START A PROJECT'} <ArrowUpRight size={16} /></button><a className="text-link light-link" href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp">CHAT ON WHATSAPP <ArrowUpRight size={15} /></a><a className="text-link light-link" href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA <ArrowUpRight size={15} /></a></div><div className={`form-status form-status-${formStatus}`} role="status" aria-live="polite">{formStatus === 'success' && <><strong>ENQUIRY SENT.</strong><span>Thanks — we&apos;ve received your project enquiry.<br />We&apos;ll be in touch soon.</span></>}{formStatus === 'error' && <><strong>SOMETHING WENT WRONG.</strong><span>We couldn&apos;t send your enquiry right now. Please try again or <a href="mailto:hello@sihleb.co.za">email hello@sihleb.co.za</a>.</span></>}</div></form></section>
 
-      <footer className="footer section-ink"><div className="footer-main"><a className="wordmark" href="#top"><span>SIHLEB</span><small>DIGITAL STUDIO</small></a><p>WEB DESIGN + HOSTING<br /><span>BUILT PROPERLY. CARED FOR AFTER.</span></p></div><div className="footer-bottom"><span>© 2026 NMAS INNOVATIONS (Pty) Ltd.</span><a href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA</a><a href="#top">BACK TO TOP ↑</a></div></footer>
+      <footer className="footer dark-section"><div className="footer-top"><div><img src={logoUrl} alt="SihleB Web Design + Hosting" /><p className="footer-division">A division of NMAS INNOVATIONS (Pty) Ltd</p></div><div className="footer-tag">WEB DESIGN + HOSTING<br /><span>BUILT TO PERFORM.<br />HOSTED TO LAST.</span><nav className="footer-nav" aria-label="Footer navigation"><a href="#services">Services</a><a href="#work">Work</a><a href="#hosting">Hosting</a><a href="#about">About</a></nav></div></div><div className="footer-bottom"><div><span>© 2026 NMAS INNOVATIONS (Pty) Ltd. All rights reserved.</span><span>WEB DESIGN + HOSTING</span></div><div><a href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp">CHAT ON WHATSAPP</a><a href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA</a><a href="#top">BACK TO TOP ↑</a></div></div></footer>
+      <a className="whatsapp-float" href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp"><span>●</span> WHATSAPP <ArrowUpRight size={14} /></a>
     </main>
   )
 }

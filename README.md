@@ -1,24 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SihleB
+
+SihleB is a Next.js website with a server-side project enquiry route.
 
 ## Getting Started
 
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The enquiry route reads these variables only on the server. Keep the values in Coolify or a local ignored `.env.local` file; never use a `NEXT_PUBLIC_` name for them.
+
+```bash
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+
+## Coolify deployment
+
+Use Coolify's standard Node.js build flow. No Dockerfile is required:
+
+- Build command: `pnpm build`
+- Start command: `pnpm start`
+- Node.js: `>=20.9.0`
+- Package manager: `pnpm@10.33.0`
+
+Set the Resend variables in Coolify only after the application is running on its generated preview URL. Test the preview URL before configuring DNS or the production domain. Actual Resend delivery and the `sihleb.co.za` / `www.sihleb.co.za` setup are post-deployment tasks.
 
 ## Learn More
 

@@ -3,8 +3,8 @@ import { Resend } from 'resend'
 const destination = 'hello@sihleb.co.za'
 export const runtime = 'nodejs'
 const maxMessageLength = 5000
-const services = new Set(['Web Design', 'Web Development', 'E-commerce', 'Hosting', 'Website Care', 'Not sure yet — I’d like some guidance.'])
-const budgets = new Set(['Not sure yet', 'R8,000 Starter', 'R13,700 Business', 'R24,900 Signature'])
+const services = new Set(['Web Design', 'Web Development', 'E-commerce', 'SEO Foundations', 'Hosting', 'Website Care', 'Not sure yet — I’d like some guidance.'])
+const budgets = new Set(['Not sure yet', 'R9,500 Launch', 'R18,500 Growth', 'R32,000 Signature'])
 const rateWindowMs = 10 * 60 * 1000
 const rateLimit = new Map<string, number[]>()
 const processedRequestIds = new Set<string>()
@@ -16,6 +16,9 @@ type Enquiry = {
   service: string
   budget: string
   message: string
+  phone: string
+  currentWebsite: string
+  timeframe: string
   website: string
   requestId: string
 }
@@ -65,11 +68,14 @@ function enquiryEmail(enquiry: Enquiry) {
         <strong>Name:</strong> ${name}<br />
         <strong>Business:</strong> ${business}<br />
         <strong>Email:</strong> ${email}
+          <br /><strong>Phone / WhatsApp:</strong> ${escapeHtml(enquiry.phone) || 'Not provided'}
+          <br /><strong>Current website:</strong> ${escapeHtml(enquiry.currentWebsite) || 'Not provided'}
       </div>
       <p style="margin:28px 0 10px;color:#626970;font-size:11px;font-weight:700;letter-spacing:2px;">PROJECT</p>
       <div style="padding:18px;background:#ffffff;border:1px solid #d8d6cf;line-height:1.7;font-size:14px;">
         <strong>Service:</strong> ${service}<br />
         <strong>Budget:</strong> ${budget}
+        <br /><strong>Timeframe:</strong> ${escapeHtml(enquiry.timeframe) || 'Not sure yet'}
         <p style="margin:18px 0 0;padding-top:18px;border-top:1px solid #d8d6cf;"><strong>Message:</strong><br />${message}</p>
       </div>
       <p style="margin:28px 0 0;color:#626970;font-size:12px;">Submitted via: sihleb.co.za</p>
@@ -99,6 +105,9 @@ export async function POST(request: Request) {
     service: clean(payload.service),
     budget: clean(payload.budget),
     message: clean(payload.message),
+    phone: clean(payload.phone),
+    currentWebsite: clean(payload.currentWebsite),
+    timeframe: clean(payload.timeframe),
     website: clean(payload.website),
     requestId: clean(payload.requestId),
   }
@@ -107,7 +116,7 @@ export async function POST(request: Request) {
     return Response.json({ ok: true })
   }
 
-  if (!enquiry.name || !enquiry.business || !enquiry.email || !services.has(enquiry.service) || !budgets.has(enquiry.budget) || !enquiry.message || !enquiry.requestId || !isValidEmail(enquiry.email) || enquiry.name.length > 120 || enquiry.business.length > 160 || enquiry.email.length > 254 || enquiry.message.length > maxMessageLength || enquiry.requestId.length > 100) {
+  if (!enquiry.name || !enquiry.business || !enquiry.email || !services.has(enquiry.service) || !budgets.has(enquiry.budget) || !enquiry.message || !enquiry.requestId || !isValidEmail(enquiry.email) || enquiry.name.length > 120 || enquiry.business.length > 160 || enquiry.email.length > 254 || enquiry.message.length > maxMessageLength || enquiry.phone.length > 40 || enquiry.currentWebsite.length > 300 || enquiry.timeframe.length > 80 || enquiry.requestId.length > 100) {
     return Response.json({ error: 'invalid_fields' }, { status: 400 })
   }
 

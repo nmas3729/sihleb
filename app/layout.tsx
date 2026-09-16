@@ -1,16 +1,15 @@
-import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'SihleB — Web Design + Hosting',
-  description: 'SihleB designs, builds and hosts professional websites for businesses that want to show up properly online. A division of NMAS INNOVATIONS (Pty) Ltd.',
+  title: 'Web Design South Africa | Websites That Generate Enquiries | SihleB',
+  description: 'SihleB designs, builds and supports high-quality websites for South African businesses that want to look credible, get found and generate better enquiries.',
   metadataBase: new URL('https://sihleb.co.za'),
   alternates: { canonical: '/' },
   keywords: ['web design South Africa', 'website design', 'web development', 'e-commerce websites', 'website hosting', 'website maintenance', 'website support'],
   openGraph: {
-    title: 'SihleB — Web Design + Hosting',
-    description: 'Beautiful websites, reliable hosting and ongoing support — without the technical headache.',
+    title: 'Web Design South Africa | Websites That Generate Enquiries | SihleB',
+    description: 'Web design, development, SEO foundations, hosting and support for South African businesses.',
     type: 'website',
     url: 'https://sihleb.co.za',
     siteName: 'SihleB Web Design + Hosting',
@@ -35,7 +34,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className="bg-[#f4f3ee]">
       <body className="antialiased">
         {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )

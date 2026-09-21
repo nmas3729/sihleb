@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -34,6 +35,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className="bg-[#f4f3ee]" suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning>
         {children}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-6FX0L2L9GN"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-6FX0L2L9GN');
+          `}
+        </Script>
       </body>
     </html>
   )

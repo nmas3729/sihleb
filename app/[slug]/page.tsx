@@ -81,8 +81,8 @@ const pages = {
     description: 'Clear starting points for SihleB website design, development, ecommerce, hosting and ongoing support.',
     eyebrow: 'PRICING / SOUTH AFRICA',
     heading: 'A clear starting point for the next stage of your business.',
-    intro: 'SihleB projects start from R9,500 for a focused business website. Larger websites, ecommerce, integrations and strategy are quoted according to scope. Every project has an agreed scope, milestones and launch process.',
-    points: ['Launch from R9,500', 'Growth from R18,500', 'Signature from R32,000', 'Hosting from R250/month'],
+    intro: 'SihleB projects start from R7,500 for a focused business website. Larger websites, ecommerce, integrations and strategy are quoted according to scope. Every project has an agreed scope, milestones and launch process.',
+    points: ['Essential from R7,500', 'Launch from R13,700', 'Growth from R18,500', 'Signature from R32,000+', 'Hosting from R250/month'],
     related: ['web-design-south-africa', 'website-maintenance', 'web-development-johannesburg'],
   },
   work: {
@@ -115,6 +115,15 @@ const pages = {
 } as const
 
 type Slug = keyof typeof pages
+const contactServiceBySlug: Partial<Record<Slug, string>> = {
+  'web-design-south-africa': 'Web Design',
+  'web-design-johannesburg': 'Web Design',
+  'web-development-johannesburg': 'Web Development',
+  'ecommerce-website-design-south-africa': 'E-commerce',
+  'website-hosting-south-africa': 'Hosting',
+  'website-maintenance': 'Website Care',
+  'seo-web-design': 'SEO Foundations',
+}
 const serviceSlugs: Slug[] = [
   'web-design-south-africa',
   'web-design-johannesburg',
@@ -163,6 +172,8 @@ export default async function LandingPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params
   const page = pages[slug as Slug]
   if (!page) notFound()
+  const serviceContext = contactServiceBySlug[slug as Slug]
+  const contactHref = serviceContext ? `/?service=${encodeURIComponent(serviceContext)}#contact` : '/#contact'
 
   const breadcrumb = { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'SihleB', item: 'https://sihleb.co.za' }, { '@type': 'ListItem', position: 2, name: page.title, item: `https://sihleb.co.za/${slug}` }] }
   const service = {
@@ -180,9 +191,9 @@ export default async function LandingPage({ params }: { params: Promise<{ slug: 
 
   return <main className="landing-page dark-section">
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-    <nav className="landing-nav" aria-label="Primary navigation"><Link href="/" className="landing-brand">SB / SIHLEB</Link><div><Link href="/web-design-south-africa">Services</Link><Link href="/pricing">Pricing</Link><Link href="/work">Work</Link><Link href="/#contact" className="landing-cta">START A PROJECT</Link></div></nav>
-    <section className="landing-hero"><div className="section-kicker">[ {page.eyebrow} ]</div><h1>{page.heading}</h1><p>{page.intro}</p><div className="landing-actions"><Link href="/#contact" className="button button-blue">PLAN MY WEBSITE</Link><Link href="/pricing" className="landing-text-link">VIEW PRICING</Link></div></section>
+    <nav className="landing-nav" aria-label="Primary navigation"><Link href="/" className="landing-brand">SB / SIHLEB</Link><div><Link href="/web-design-south-africa">Services</Link><Link href="/pricing">Pricing</Link><Link href="/work">Work</Link><Link href={contactHref} className="landing-cta">START A PROJECT</Link></div></nav>
+    <section className="landing-hero"><div className="section-kicker">[ {page.eyebrow} ]</div><h1>{page.heading}</h1><p>{page.intro}</p><div className="landing-actions"><Link href={contactHref} className="button button-blue">PLAN MY WEBSITE</Link><Link href="/pricing" className="landing-text-link">VIEW PRICING</Link></div></section>
     <section className="landing-content"><div className="section-kicker">[ WHAT THIS INCLUDES ]</div><div className="landing-points">{page.points.map((point, index) => <div key={point}><span>0{index + 1}</span><h2>{point}</h2></div>)}</div><div className="landing-related"><strong>Continue exploring</strong>{page.related.map(related => <Link key={related} href={`/${related}`}>{pages[related as Slug].title}</Link>)}</div></section>
-    <section className="landing-footer"><div><div className="section-kicker">[ READY WHEN YOU ARE ]</div><h2>Make the website easier to choose.</h2><p>Tell us what you are building and where you want the business to go next.</p></div><Link href="/#contact" className="button button-blue">START A PROJECT</Link></section>
+    <section className="landing-footer"><div><div className="section-kicker">[ READY WHEN YOU ARE ]</div><h2>Make the website easier to choose.</h2><p>Tell us what you are building and where you want the business to go next.</p></div><Link href={contactHref} className="button button-blue">START A PROJECT</Link></section>
   </main>
 }

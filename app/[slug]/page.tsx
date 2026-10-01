@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { siteName, siteUrl } from '@/lib/seo'
 
 const pages = {
   'web-design-south-africa': {
@@ -113,6 +115,15 @@ const pages = {
 } as const
 
 type Slug = keyof typeof pages
+const serviceSlugs: Slug[] = [
+  'web-design-south-africa',
+  'web-design-johannesburg',
+  'web-development-johannesburg',
+  'ecommerce-website-design-south-africa',
+  'website-hosting-south-africa',
+  'website-maintenance',
+  'seo-web-design',
+]
 
 export function generateStaticParams() {
   return Object.keys(pages).map(slug => ({ slug }))
@@ -121,20 +132,50 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const page = pages[slug as Slug]
-  return page ? { title: page.title, description: page.description, alternates: { canonical: `/${slug}` } } : {}
+  if (!page) return {}
+
+  const canonical = `/${slug}`
+  const imageUrl = `${siteUrl}/opengraph-image`
+
+  return {
+    title: page.title,
+    description: page.description,
+    alternates: { canonical },
+    openGraph: {
+      title: page.title,
+      description: page.description,
+      type: 'website',
+      url: `${siteUrl}${canonical}`,
+      siteName,
+      locale: 'en_ZA',
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: siteName }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: page.title,
+      description: page.description,
+      images: [imageUrl],
+    },
+  }
 }
 
 export default async function LandingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const page = pages[slug as Slug]
-  if (!page) return null
+  if (!page) notFound()
 
+  const breadcrumb = { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'SihleB', item: 'https://sihleb.co.za' }, { '@type': 'ListItem', position: 2, name: page.title, item: `https://sihleb.co.za/${slug}` }] }
+  const service = {
+    '@type': 'Service',
+    name: page.title,
+    description: page.description,
+    provider: { '@type': 'Organization', name: 'SihleB Web Design + Hosting', url: 'https://sihleb.co.za' },
+    areaServed: 'ZA',
+    url: `https://sihleb.co.za/${slug}`,
+  }
   const schema = {
     '@context': 'https://schema.org',
-    '@graph': [
-      { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'SihleB', item: 'https://sihleb.co.za' }, { '@type': 'ListItem', position: 2, name: page.title, item: `https://sihleb.co.za/${slug}` }] },
-      { '@type': 'Service', name: page.title, description: page.description, provider: { '@type': 'Organization', name: 'SihleB Web Design + Hosting', url: 'https://sihleb.co.za' }, areaServed: 'ZA', url: `https://sihleb.co.za/${slug}` },
-    ],
+    '@graph': [breadcrumb, ...(serviceSlugs.includes(slug as Slug) ? [service] : [])],
   }
 
   return <main className="landing-page dark-section">

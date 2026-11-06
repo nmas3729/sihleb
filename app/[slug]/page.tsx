@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { siteName, siteUrl } from '@/lib/seo'
+import { Schema } from '@/components/Schema'
+import { breadcrumbSchema, organizationSchema, serviceSchema, siteName, siteUrl } from '@/lib/seo'
 
 const pages = {
   'web-design-south-africa': {
@@ -20,7 +21,7 @@ const pages = {
     heading: 'A better digital first impression for Johannesburg businesses.',
     intro: 'SihleB helps Johannesburg and Gauteng businesses turn an unclear or outdated website into a more credible, useful and enquiry-focused business asset. We work directly with you from planning through hosting and support.',
     points: ['Designed for professional services and growing brands', 'Mobile-first customer journeys', 'Local SEO-ready structure', 'One team from design to support'],
-    related: ['web-design-south-africa', 'website-design-gauteng', 'pricing'],
+    related: ['web-design-south-africa', 'web-design-johannesburg', 'pricing'],
   },
   'website-design-gauteng': {
     title: 'Website Design Gauteng | SihleB',
@@ -175,22 +176,16 @@ export default async function LandingPage({ params }: { params: Promise<{ slug: 
   const serviceContext = contactServiceBySlug[slug as Slug]
   const contactHref = serviceContext ? `/?service=${encodeURIComponent(serviceContext)}#contact` : '/#contact'
 
-  const breadcrumb = { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'SihleB', item: 'https://sihleb.co.za' }, { '@type': 'ListItem', position: 2, name: page.title, item: `https://sihleb.co.za/${slug}` }] }
-  const service = {
-    '@type': 'Service',
-    name: page.title,
-    description: page.description,
-    provider: { '@type': 'Organization', name: 'SihleB Web Design + Hosting', url: 'https://sihleb.co.za' },
-    areaServed: 'ZA',
-    url: `https://sihleb.co.za/${slug}`,
-  }
-  const schema = {
-    '@context': 'https://schema.org',
-    '@graph': [breadcrumb, ...(serviceSlugs.includes(slug as Slug) ? [service] : [])],
-  }
+  const schema = [
+    organizationSchema,
+    breadcrumbSchema([{ name: 'SihleB', path: '/' }, { name: page.title, path: `/${slug}` }]),
+    ...(serviceSlugs.includes(slug as Slug)
+      ? [serviceSchema({ name: page.title, description: page.description, path: `/${slug}` })]
+      : []),
+  ]
 
   return <main className="landing-page dark-section">
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+    <Schema data={schema} />
     <nav className="landing-nav" aria-label="Primary navigation"><Link href="/" className="landing-brand">SB / SIHLEB</Link><div><Link href="/web-design-south-africa">Services</Link><Link href="/pricing">Pricing</Link><Link href="/work">Work</Link><Link href={contactHref} className="landing-cta">START A PROJECT</Link></div></nav>
     <section className="landing-hero"><div className="section-kicker">[ {page.eyebrow} ]</div><h1>{page.heading}</h1><p>{page.intro}</p><div className="landing-actions"><Link href={contactHref} className="button button-blue">PLAN MY WEBSITE</Link><Link href="/pricing" className="landing-text-link">VIEW PRICING</Link></div></section>
     <section className="landing-content"><div className="section-kicker">[ WHAT THIS INCLUDES ]</div><div className="landing-points">{page.points.map((point, index) => <div key={point}><span>0{index + 1}</span><h2>{point}</h2></div>)}</div><div className="landing-related"><strong>Continue exploring</strong>{page.related.map(related => <Link key={related} href={`/${related}`}>{pages[related as Slug].title}</Link>)}</div></section>

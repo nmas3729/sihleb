@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { FormEvent, useEffect, useState } from 'react'
+import { organizationSchema, serviceSchema, websiteSchema } from '@/lib/seo'
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -170,14 +171,20 @@ export default function Page() {
 
   return (
     <main className="site-shell">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@graph': [
-          { '@type': 'Organization', name: 'SihleB Web Design + Hosting', url: 'https://sihleb.co.za', email: 'hello@sihleb.co.za', parentOrganization: { '@type': 'Organization', name: 'NMAS INNOVATIONS (Pty) Ltd' } },
-          { '@type': 'WebSite', name: 'SihleB Web Design + Hosting', url: 'https://sihleb.co.za', inLanguage: 'en-ZA' },
-          { '@type': 'Service', name: 'Web design, development, hosting and support', provider: { '@type': 'Organization', name: 'SihleB Web Design + Hosting' }, areaServed: 'ZA' },
-        ],
-      }) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([
+            organizationSchema,
+            websiteSchema,
+            serviceSchema({
+              name: 'Web design, development, hosting and support',
+              description: 'Web design, development, hosting and support for South African businesses.',
+              path: '/',
+            }),
+          ]).replace(/</g, '\\u003c'),
+        }}
+      />
       {formStatus === 'success' && <div className="conversion-confirmation conversion-confirmation-success" role="status"><strong>ENQUIRY SENT.</strong><span>Thanks — we&apos;ve received your project enquiry.<br />We&apos;ll review your project and reply soon.</span><div><a href="#top">BACK TO HOME</a><a href="#work">VIEW OUR WORK</a></div></div>}
       {formStatus === 'error' && <div className="conversion-confirmation conversion-confirmation-error" role="alert"><strong>SOMETHING WENT WRONG.</strong><span>We couldn&apos;t send your enquiry right now.<br />Please try again or contact us directly:</span><a href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA</a><a href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick}>CHAT ON WHATSAPP</a></div>}
       <nav className={`nav-wrap ${scrolled ? 'is-scrolled' : ''}`} aria-label="Primary navigation">

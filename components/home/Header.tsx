@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { track } from '@vercel/analytics'
+import { trackEvent } from '@/lib/analytics'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -12,7 +12,7 @@ const callNumberDisplay = '+27 67 487 7278'
 const callNumberHref = 'tel:+27674877278'
 
 function handleWhatsAppClick() {
-  track('whatsapp_click')
+  trackEvent('whatsapp_click')
 }
 
 export function Header() {

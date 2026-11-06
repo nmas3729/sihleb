@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { FormEvent, useEffect, useState } from 'react'
 import { organizationSchema, serviceSchema, websiteSchema } from '@/lib/seo'
+import { trackEvent } from '@/lib/analytics'
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -15,23 +16,6 @@ import {
 
 const logoUrl = '/SihleB-Logo.jpeg'
 const whatsappUrl = 'https://wa.me/27714664935'
-
-type LeadEventName = 'enquiry_started' | 'enquiry_submitted' | 'enquiry_failed' | 'whatsapp_click' | 'email_click' | 'package_interest' | 'service_interest'
-type LeadEventParameters = Record<string, string>
-type AnalyticsWindow = Window & {
-  dataLayer?: unknown[]
-  gtag?: (...args: unknown[]) => void
-}
-
-function trackLeadEvent(eventName: LeadEventName, parameters?: LeadEventParameters) {
-  if (typeof window === 'undefined') return
-  const analyticsWindow = window as AnalyticsWindow
-  analyticsWindow.dataLayer ??= []
-  analyticsWindow.gtag ??= (...args: unknown[]) => {
-    analyticsWindow.dataLayer?.push(args)
-  }
-  analyticsWindow.gtag('event', eventName, parameters)
-}
 
 function packageBudgetOption(plan: { name: string; price: string }) {
   const packageName = `${plan.name[0]}${plan.name.slice(1).toLowerCase()}`
@@ -46,18 +30,18 @@ function selectEnquiryValue(field: 'service' | 'budget', value: string) {
 
 function handlePackageInterest(plan: { name: string; price: string }) {
   selectEnquiryValue('budget', packageBudgetOption(plan))
-  trackLeadEvent('package_interest', { package_name: plan.name, package_price: plan.price })
+  trackEvent('package_interest', { package_name: plan.name, package_price: plan.price })
 }
 
 function handleServiceInterest(serviceName: string) {
   // Homepage label "Support" maps to the form/API value "Website Care".
   const selectValue = serviceName === 'Support' ? 'Website Care' : serviceName
   selectEnquiryValue('service', selectValue)
-  trackLeadEvent('service_interest', { service_name: serviceName })
+  trackEvent('service_interest', { service_name: serviceName })
 }
 
 function handleWhatsAppClick() {
-  trackLeadEvent('whatsapp_click')
+  trackEvent('whatsapp_click')
 }
 
 const services = [
@@ -107,7 +91,7 @@ export default function Page() {
     const form = event.currentTarget
     const data = Object.fromEntries(new FormData(form).entries())
     setFormStatus('sending')
-    trackLeadEvent('enquiry_started')
+    trackEvent('enquiry_started')
 
     try {
       const response = await fetch('/api/project-enquiry', {
@@ -118,11 +102,11 @@ export default function Page() {
 
       if (!response.ok) throw new Error('Project enquiry failed')
       setFormStatus('success')
-      if (!data.website) trackLeadEvent('enquiry_submitted')
+      if (!data.website) trackEvent('enquiry_submitted')
       form.reset()
     } catch {
       setFormStatus('error')
-      trackLeadEvent('enquiry_failed')
+      trackEvent('enquiry_failed')
     }
   }
 
@@ -153,7 +137,7 @@ export default function Page() {
     const onConversionClick = (event: MouseEvent) => {
       const target = event.target
       if (!(target instanceof Element)) return
-      if (target.closest('a[href^="mailto:"]')) trackLeadEvent('email_click')
+      if (target.closest('a[href^="mailto:"]')) trackEvent('email_click')
     }
     document.addEventListener('click', onConversionClick)
     return () => document.removeEventListener('click', onConversionClick)
@@ -248,7 +232,8 @@ export default function Page() {
 
       <section id="about" className="about section-light"><div className="about-mark"><Image src="/removebg.png" alt="SihleB brand mark" width={320} height={220} /></div><div><div className="section-kicker">[ ABOUT SIHLEB ]</div><h2>DESIGN.<br />BUILD.<br /><em>HOST.</em></h2><p className="large-copy">SihleB Digital Studio is the web design and hosting division of NMAS INNOVATIONS (Pty) Ltd, a family-driven company whose name is built from the first letters of the founder’s children’s names. SihleB is named after one of them.</p><p className="large-copy">Founded in 2023 by an IT engineer with more than 25 years of experience, it started with a simple frustration: South African businesses stuck with slow, unreliable hosting, overcomplicated web projects and unclear pricing. We exist to make professional web design and dependable hosting straightforward and fairly priced.</p><p className="large-copy">You get direct communication, transparent pricing and support from the people who built your site, from the first conversation to long-term care.</p><a className="text-link dark-link" href="#contact">MORE ABOUT SIHLEB <ArrowUpRight size={15} /></a></div></section>
 
-      <section id="contact" className="final-cta dark-section"><div className="cta-lines" /><div className="section-kicker">[ LET’S MAKE SOMETHING GOOD ]</div><h2>READY TO GET<br /><em>ONLINE?</em></h2><p>Tell us where you’re going. We’ll help you build the way there.</p><form className="project-form" onSubmit={handleProjectSubmit} aria-busy={formStatus === 'sending'}><div className="form-grid"><label><span>NAME</span><input name="name" type="text" autoComplete="name" required /></label><label><span>BUSINESS</span><input name="business" type="text" autoComplete="organization" required /></label><label><span>EMAIL</span><input name="email" type="email" autoComplete="email" required /></label><label><span>WHAT DO YOU NEED?</span><select name="service" defaultValue="Not sure yet — I’d like some guidance." onChange={(event) => event.currentTarget.value !== 'Not sure yet — I’d like some guidance.' && trackLeadEvent('service_interest', { service_name: event.currentTarget.value })}><option>Web Design</option><option>Web Development</option><option>E-commerce</option><option>Hosting</option><option>Website Care</option><option>SEO Foundations</option><option>Not sure yet — I’d like some guidance.</option></select></label><label><span>BUDGET / STARTING POINT</span><select name="budget" defaultValue="Not sure yet" onChange={(event) => event.currentTarget.value !== 'Not sure yet' && trackLeadEvent('package_interest', { package_selection: event.currentTarget.value })}><option>Not sure yet</option><option>R7,500 Essential</option><option>R13,700 Launch</option><option>R18,500 Growth</option><option>R32,000+ Signature</option></select></label><label className="form-message"><span>MESSAGE</span><textarea name="message" rows={4} required /></label><div className="form-trap" aria-hidden="true"><label>Website<input name="website" type="text" tabIndex={-1} autoComplete="off" /></label></div></div><div className="hero-actions"><button className="button button-blue" type="submit" disabled={formStatus === 'sending'}>{formStatus === 'sending' ? 'SENDING…' : 'START A PROJECT'} <ArrowUpRight size={16} /></button><a className="text-link light-link" href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp">CHAT ON WHATSAPP <ArrowUpRight size={15} /></a><a className="text-link light-link" href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA <ArrowUpRight size={15} /></a></div><div className={`form-status form-status-${formStatus}`} role="status" aria-live="polite">{formStatus === 'success' && <><strong>ENQUIRY SENT.</strong><span>Thanks — we&apos;ve received your project enquiry.<br />We&apos;ll be in touch soon.</span></>}{formStatus === 'error' && <><strong>SOMETHING WENT WRONG.</strong><span>We couldn&apos;t send your enquiry right now. Please try again or <a href="mailto:hello@sihleb.co.za">email hello@sihleb.co.za</a>.</span></>}</div></form></section>
+      <section id="contact" className="final-cta dark-section"><div className="cta-lines" /><div className="section-kicker">[ LET’S MAKE SOMETHING GOOD ]</div><h2>READY TO GET<br /><em>ONLINE?</em></h2><p>Tell us where you’re going. We’ll help you build the way there.</p>
+        <form className="project-form" onSubmit={handleProjectSubmit} aria-busy={formStatus === 'sending'}><div className="form-grid"><label><span>NAME</span><input name="name" type="text" autoComplete="name" required /></label><label><span>BUSINESS</span><input name="business" type="text" autoComplete="organization" required /></label><label><span>EMAIL</span><input name="email" type="email" autoComplete="email" required /></label><label><span>WHAT DO YOU NEED?</span><select name="service" defaultValue="Not sure yet — I’d like some guidance." onChange={(event) => event.currentTarget.value !== 'Not sure yet — I’d like some guidance.' && trackEvent('service_interest', { service_name: event.currentTarget.value })}><option>Web Design</option><option>Web Development</option><option>E-commerce</option><option>Hosting</option><option>Website Care</option><option>SEO Foundations</option><option>Not sure yet — I’d like some guidance.</option></select></label><label><span>BUDGET / STARTING POINT</span><select name="budget" defaultValue="Not sure yet" onChange={(event) => event.currentTarget.value !== 'Not sure yet' && trackEvent('package_interest', { package_selection: event.currentTarget.value })}><option>Not sure yet</option><option>R7,500 Essential</option><option>R13,700 Launch</option><option>R18,500 Growth</option><option>R32,000+ Signature</option></select></label><label className="form-message"><span>MESSAGE</span><textarea name="message" rows={4} required /></label><div className="form-trap" aria-hidden="true"><label>Website<input name="website" type="text" tabIndex={-1} autoComplete="off" /></label></div></div><div className="hero-actions"><button className="button button-blue" type="submit" disabled={formStatus === 'sending'}>{formStatus === 'sending' ? 'SENDING…' : 'START A PROJECT'} <ArrowUpRight size={16} /></button><a className="text-link light-link" href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp">CHAT ON WHATSAPP <ArrowUpRight size={15} /></a><a className="text-link light-link" href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA <ArrowUpRight size={15} /></a></div><div className={`form-status form-status-${formStatus}`} role="status" aria-live="polite">{formStatus === 'success' && <><strong>ENQUIRY SENT.</strong><span>Thanks — we&apos;ve received your project enquiry.<br />We&apos;ll be in touch soon.</span></>}{formStatus === 'error' && <><strong>SOMETHING WENT WRONG.</strong><span>We couldn&apos;t send your enquiry right now. Please try again or <a href="mailto:hello@sihleb.co.za">email hello@sihleb.co.za</a>.</span></>}</div></form></section>
 
       <footer className="footer dark-section"><div className="footer-top"><div><Image src={logoUrl} alt="SihleB Digital Studio" width={170} height={100} /><p className="footer-division">A division of NMAS INNOVATIONS (Pty) Ltd</p></div><div className="footer-tag">WEB DESIGN + HOSTING<br /><span>BUILT TO PERFORM.<br />HOSTED TO LAST.</span><nav className="footer-nav" aria-label="Footer navigation"><a href="#services">Services</a><a href="#work">Work</a><a href="#hosting">Hosting</a><a href="#about">About</a></nav></div></div><div className="footer-bottom"><div><span>© 2026 NMAS INNOVATIONS (Pty) Ltd. All rights reserved.</span><span>WEB DESIGN + HOSTING</span></div><div><a href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp">CHAT</a><a href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA</a><a href="#top">BACK TO TOP ↑</a></div></div></footer>
       <section className="faq section-light"><div className="section-kicker">[ COMMON QUESTIONS ]</div><div className="section-heading"><div><h2>GOOD TO<br /><em>KNOW.</em></h2></div><p>Clear answers before we start, so you know what to expect from the project and the relationship after launch.</p></div><div className="faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<ChevronDown size={17} /></summary><p>{answer}</p></details>)}</div></section>

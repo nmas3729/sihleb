@@ -189,7 +189,7 @@ export default function Page() {
       {formStatus === 'error' && <div className="conversion-confirmation conversion-confirmation-error" role="alert"><strong>SOMETHING WENT WRONG.</strong><span>We couldn&apos;t send your enquiry right now.<br />Please try again or contact us directly:</span><a href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA</a><a href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick}>CHAT ON WHATSAPP</a></div>}
       <nav className={`nav-wrap ${scrolled ? 'is-scrolled' : ''}`} aria-label="Primary navigation">
         <a href="#top" className="brand-lockup" aria-label="SihleB home">
-          <Image src={logoUrl} alt="SihleB Digital Studio" width={84} height={56} priority />
+          <Image src={logoUrl} alt="SihleB Digital Studio" width={84} height={84} priority />
         </a>
         <div className="nav-links">
           <a href="#services">Services</a><a href="#work">Work</a><a href="#hosting">Hosting</a><a href="#about">About</a>

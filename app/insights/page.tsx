@@ -7,6 +7,7 @@ import { getInsights } from '@/lib/insights'
 export const metadata: Metadata = {
   title: 'Web Design Insights South Africa | SihleB',
   description: 'Practical web design insights for South African businesses, covering SEO, conversion, website care and useful digital decisions.',
+  robots: { index: false, follow: true },
   alternates: { canonical: '/insights' },
   openGraph: {
     title: 'Web Design Insights South Africa | SihleB',

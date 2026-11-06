@@ -7,7 +7,7 @@ import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 const logoUrl = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/SihleB-Logo-JpSPCq41GEy8rmSC4pNgsNT35LqblJ.jpeg'
-const whatsappUrl = 'https://wa.me/+27639180398?text=Hi%20SihleB%2C%20I%27d%20like%20to%20chat%20about%20a%20website%20project.'
+const whatsappUrl = 'https://wa.me/27714664935'
 const callNumberDisplay = '+27 67 487 7278'
 const callNumberHref = 'tel:+27674877278'
 

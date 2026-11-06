@@ -37,7 +37,7 @@
 |---------|--------|
 | Navigation (desktop & mobile) | Works; mobile menu toggles correctly.
 | Primary CTA buttons (START A PROJECT, VIEW PRICING) | Navigate to respective sections/routes.
-| WhatsApp link | Opens `https://wa.me/+27639180398` in new tab.
+| WhatsApp link | Opens `https://wa.me/27714664935` in new tab.
 | Email link | Opens mail client with correct address.
 | Enquiry form – field labels, required indicators | Visible and functional.
 | Form validation (client & server) | Blocks empty required fields; shows error on submission failure.

@@ -60,7 +60,7 @@
 - Friction: current section mixes real work and speculative concepts, which weakens proof.
 
 ### WhatsApp CTA
-- Destination: `https://wa.me/27674877278?...`
+- Destination: `https://wa.me/27714664935`
 - Behavior: good mobile experience and proper `target="_blank"`.
 - Clear? yes.
 - Friction: low.

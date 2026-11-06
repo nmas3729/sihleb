@@ -5,7 +5,7 @@ import { GlobalHeader } from '@/components/global/GlobalHeader'
 import { GlobalApplicationForm } from '@/components/global/GlobalApplicationForm'
 import { organizationSchema } from '@/lib/seo'
 
-const whatsappUrl = 'https://wa.me/+27639180398?text=Hi%20SihleB%20Digital%20Studio%2C%20I%27d%20like%20to%20chat%20about%20an%20international%20website%20project.'
+const whatsappUrl = 'https://wa.me/27714664935'
 
 export const metadata: Metadata = {
   title: 'Custom-Coded Websites for International Small Businesses | SihleB Digital Studio',
@@ -348,7 +348,7 @@ export default function GlobalPage() {
               target="_blank"
               rel="noreferrer"
               className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#25D366]/70 px-5 text-[10px] font-bold uppercase tracking-[0.14em] text-white transition hover:bg-[#25D366] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#25D366]"
-              aria-label="Chat with SihleB Digital Studio on WhatsApp at plus 27 63 918 0398"
+              aria-label="Chat with SihleB Digital Studio on WhatsApp at plus 27 71 466 4935"
             >
               <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-[#25D366]">
                 <path d="M12.04 2a9.92 9.92 0 0 0-8.48 15.08L2.2 22l5.06-1.33A10 10 0 1 0 12.04 2Zm0 18.18a8.17 8.17 0 0 1-4.17-1.14l-.3-.18-3 .79.8-2.92-.2-.31a8.18 8.18 0 1 1 6.87 3.76Zm4.49-6.13c-.25-.13-1.47-.73-1.7-.81-.23-.09-.4-.13-.57.13-.17.25-.65.81-.8.98-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.23-.75-.67-1.26-1.49-1.41-1.74-.15-.25-.02-.39.11-.52.12-.11.25-.29.38-.43.13-.15.17-.25.25-.42.09-.17.04-.32-.02-.45-.06-.12-.57-1.37-.78-1.88-.2-.49-.41-.42-.57-.43h-.48c-.17 0-.44.06-.67.32-.23.25-.88.86-.88 2.1s.9 2.44 1.03 2.61c.13.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.44.52.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.1-.23-.16-.48-.29Z" />
@@ -370,8 +370,8 @@ export default function GlobalPage() {
               <span>Email:</span>
               <span>hello@sihleb.co.za</span>
             </a>
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-1.5 font-bold underline decoration-[#c7ff3d] underline-offset-4 transition hover:text-[#080a0d]" aria-label="Message SihleB Digital Studio on WhatsApp at plus 27 63 918 0398">
-              WhatsApp: +27 63 918 0398
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-1.5 font-bold underline decoration-[#c7ff3d] underline-offset-4 transition hover:text-[#080a0d]" aria-label="Message SihleB Digital Studio on WhatsApp at plus 27 71 466 4935">
+              WhatsApp: +27 71 466 4935
             </a>
           </div>
         </div>

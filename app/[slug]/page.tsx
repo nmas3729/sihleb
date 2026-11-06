@@ -87,8 +87,8 @@ const pages = {
     related: ['web-design-south-africa', 'website-maintenance', 'web-development-johannesburg'],
   },
   work: {
-    title: 'Website Design Portfolio and Case Studies | SihleB',
-    description: 'Explore SihleB website design directions and follow the work as client case studies are published with permission.',
+    title: 'SihleB Website Design Work | South Africa',
+    description: 'Explore how SihleB approaches website strategy, visual direction, development, launch, hosting and ongoing support for South African businesses.',
     eyebrow: 'SELECTED WORK / SIHLEB',
     heading: 'Work built around the business behind it.',
     intro: 'Every project starts with a different problem. A new business needs credibility. An established brand needs clarity. A growing company needs a website that can turn attention into action. Client case studies are published with permission as projects launch.',

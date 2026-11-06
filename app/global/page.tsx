@@ -8,13 +8,13 @@ import { organizationSchema } from '@/lib/seo'
 const whatsappUrl = 'https://wa.me/27714664935'
 
 export const metadata: Metadata = {
-  title: 'Custom-Coded Websites for International Small Businesses | SihleB Digital Studio',
-  description: 'SihleB Digital Studio builds custom-coded websites for ambitious small businesses in Eastern Europe and Australia. Applications are reviewed before acceptance. €0 upfront.',
+  title: 'Custom-Coded Websites for Small Business | SihleB',
+  description: 'SihleB Digital Studio builds custom-coded websites for small businesses in Eastern Europe and Australia. Applications are reviewed first. €0 upfront.',
   metadataBase: new URL('https://sihleb.co.za'),
   alternates: { canonical: '/global' },
   openGraph: {
-    title: 'Custom-Coded Websites for International Small Businesses | SihleB Digital Studio',
-    description: 'SihleB Digital Studio builds custom-coded websites for ambitious small businesses in Eastern Europe and Australia. Applications are reviewed before acceptance. €0 upfront.',
+    title: 'Custom-Coded Websites for Small Business | SihleB',
+    description: 'SihleB Digital Studio builds custom-coded websites for small businesses in Eastern Europe and Australia. Applications are reviewed first. €0 upfront.',
     url: 'https://sihleb.co.za/global',
     siteName: 'SihleB Digital Studio',
     locale: 'en_ZA',

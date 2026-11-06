@@ -1,6 +1,6 @@
 export const siteUrl = 'https://sihleb.co.za'
-export const siteName = 'SihleB Web Design + Hosting'
-export const logoUrl = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/SihleB-Logo-JpSPCq41GEy8rmSC4pNgsNT35LqblJ.jpeg'
+export const siteName = 'SihleB Digital Studio'
+export const logoUrl = `${siteUrl}/SihleB-Logo.jpeg`
 
 export const organizationSchema = {
   '@context': 'https://schema.org',

@@ -153,9 +153,9 @@ export async function POST(request: Request) {
     const confirmation = await resend.emails.send({
       from,
       to: enquiry.email,
-      subject: 'We received your project enquiry — SihleB',
-      html: `<div style="max-width:600px;padding:32px;background:#f4f3ee;color:#080a0d;font-family:Arial,Helvetica,sans-serif;"><div style="border-top:4px solid #c7ff3d;padding-top:18px;"><p style="font-size:11px;font-weight:700;letter-spacing:2px;">SIHLEB</p><h1 style="font-size:28px;">Thanks for reaching out, ${escapeHtml(enquiry.name)}.</h1><p style="font-size:16px;line-height:1.6;">We’ve received your project enquiry and will take a look at what you’re building.</p><p style="font-size:16px;line-height:1.6;">We’ll be in touch soon.</p><p style="margin-top:32px;font-size:13px;line-height:1.7;">SihleB<br />Web Design + Hosting<br /><strong>DESIGN. BUILD. HOST.</strong><br />hello@sihleb.co.za</p></div></div>`,
-      text: `Hi ${enquiry.name},\n\nThanks for reaching out to SihleB.\n\nWe’ve received your project enquiry and will take a look at what you’re building.\n\nWe’ll be in touch soon.\n\nSihleB\nWeb Design + Hosting\nDESIGN. BUILD. HOST.\nhello@sihleb.co.za`,
+      subject: 'We received your project enquiry — SihleB Digital Studio',
+      html: `<div style="max-width:600px;padding:32px;background:#f4f3ee;color:#080a0d;font-family:Arial,Helvetica,sans-serif;"><div style="border-top:4px solid #c7ff3d;padding-top:18px;"><p style="font-size:11px;font-weight:700;letter-spacing:2px;">SIHLEB</p><h1 style="font-size:28px;">Thanks for reaching out, ${escapeHtml(enquiry.name)}.</h1><p style="font-size:16px;line-height:1.6;">We’ve received your project enquiry and will take a look at what you’re building.</p><p style="font-size:16px;line-height:1.6;">We’ll be in touch soon.</p><p style="margin-top:32px;font-size:13px;line-height:1.7;">SihleB Digital Studio<br /><strong>DESIGN. BUILD. HOST.</strong><br />hello@sihleb.co.za</p></div></div>`,
+      text: `Hi ${enquiry.name},\n\nThanks for reaching out to SihleB.\n\nWe’ve received your project enquiry and will take a look at what you’re building.\n\nWe’ll be in touch soon.\n\nSihleB Digital Studio\nDESIGN. BUILD. HOST.\nhello@sihleb.co.za`,
     })
 
     if (confirmation.error) console.error('Resend confirmation email failed:', confirmation.error.name)

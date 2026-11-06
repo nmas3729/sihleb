@@ -13,9 +13,9 @@ export const metadata: Metadata = {
     description: 'Practical web design insights for South African businesses, covering SEO, conversion, website care and useful digital decisions.',
     type: 'website',
     url: `${siteUrl}/insights`,
-    siteName: 'SihleB Web Design + Hosting',
+    siteName: 'SihleB Digital Studio',
     locale: 'en_ZA',
-    images: [{ url: `${siteUrl}/opengraph-image`, width: 1200, height: 630, alt: 'SihleB Web Design + Hosting' }],
+    images: [{ url: `${siteUrl}/opengraph-image`, width: 1200, height: 630, alt: 'SihleB Digital Studio' }],
   },
 }
 

@@ -6,7 +6,7 @@ import { track } from '@vercel/analytics'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-const logoUrl = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/SihleB-Logo-JpSPCq41GEy8rmSC4pNgsNT35LqblJ.jpeg'
+const logoUrl = '/SihleB-Logo.jpeg'
 const whatsappUrl = 'https://wa.me/27714664935'
 const callNumberDisplay = '+27 67 487 7278'
 const callNumberHref = 'tel:+27674877278'
@@ -41,7 +41,7 @@ export function Header() {
   return <>
     <nav className={`nav-wrap ${scrolled ? 'is-scrolled' : ''}`} aria-label="Primary navigation">
       <Link href="/" className="brand-lockup" aria-label="SihleB home">
-        <Image src={logoUrl} width={1024} height={1024} alt="SihleB Web Design + Hosting" />
+        <Image src={logoUrl} width={84} height={84} alt="SihleB Digital Studio" />
       </Link>
       <div className="nav-links">
         <Link href="/web-design-south-africa">Services</Link><Link href="/web-design-johannesburg">Johannesburg</Link><Link href="/web-development-johannesburg">Development</Link><Link href="/website-hosting-south-africa">Hosting</Link><Link href="/work">Work</Link><Link href="/pricing">Pricing</Link><Link href="/about">About</Link><Link href="/insights">Insights</Link>

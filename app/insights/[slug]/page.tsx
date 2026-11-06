@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       siteName,
       locale: 'en_ZA',
       publishedTime: insight.date,
-      images: [{ url: `${siteUrl}/opengraph-image`, width: 1200, height: 630, alt: 'SihleB Web Design + Hosting' }],
+      images: [{ url: `${siteUrl}/opengraph-image`, width: 1200, height: 630, alt: 'SihleB Digital Studio' }],
     },
   }
 }

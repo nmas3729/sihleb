@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
 
-export const alt = 'SihleB Web Design + Hosting'
+export const alt = 'SihleB Digital Studio'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 

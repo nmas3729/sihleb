@@ -276,8 +276,8 @@ Request ID: ${valid.requestId}`,
     const confirmation = await resend.emails.send({
       from,
       to: valid.email,
-      subject: 'Application received — SihleB',
-      html: `<div style="max-width:600px;padding:32px;background:#f4f3ee;color:#080a0d;font-family:Arial,Helvetica,sans-serif;"><div style="border-top:4px solid #c7ff3d;padding-top:18px;"><p style="font-size:11px;font-weight:700;letter-spacing:2px;">SIHLEB</p><h1 style="font-size:28px;">Thanks for your application.</h1><p style="font-size:16px;line-height:1.6;">We’ve received your international website application and will review your project details soon.</p><p style="font-size:16px;line-height:1.6;">If your request fits the scope, we’ll be in touch with next steps.</p><p style="margin-top:32px;font-size:13px;line-height:1.7;">SihleB<br />Web Design + Hosting<br /><strong>DESIGN. BUILD. HOST.</strong><br />hello@sihleb.co.za</p></div></div>`,
+      subject: 'Application received — SihleB Digital Studio',
+      html: `<div style="max-width:600px;padding:32px;background:#f4f3ee;color:#080a0d;font-family:Arial,Helvetica,sans-serif;"><div style="border-top:4px solid #c7ff3d;padding-top:18px;"><p style="font-size:11px;font-weight:700;letter-spacing:2px;">SIHLEB</p><h1 style="font-size:28px;">Thanks for your application.</h1><p style="font-size:16px;line-height:1.6;">We’ve received your international website application and will review your project details soon.</p><p style="font-size:16px;line-height:1.6;">If your request fits the scope, we’ll be in touch with next steps.</p><p style="margin-top:32px;font-size:13px;line-height:1.7;">SihleB Digital Studio<br /><strong>DESIGN. BUILD. HOST.</strong><br />hello@sihleb.co.za</p></div></div>`,
       text: `Hi ${valid.name},
 
 Thanks for your application.
@@ -286,8 +286,7 @@ We’ve received your international website application and will review your pro
 
 If your request fits the scope, we’ll be in touch with next steps.
 
-SihleB
-Web Design + Hosting
+SihleB Digital Studio
 DESIGN. BUILD. HOST.
 hello@sihleb.co.za`,
     })

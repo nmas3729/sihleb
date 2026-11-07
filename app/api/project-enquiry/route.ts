@@ -41,6 +41,87 @@ function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+    ? value as Record<string, unknown>
+    : {}
+}
+
+function safeLogText(value: unknown, enquiry: Enquiry, apiKey: string) {
+  if (typeof value !== 'string') return undefined
+
+  let message = value
+    .replace(/[^\s@]+@[^\s@]+\.[^\s@]+/g, '[redacted-email]')
+    .replace(/\bre_[A-Za-z0-9_-]+\b/g, '[redacted-key]')
+    .replaceAll(apiKey, '[redacted-key]')
+
+  for (const customerValue of [
+    enquiry.name,
+    enquiry.business,
+    enquiry.email,
+    enquiry.phone,
+    enquiry.currentWebsite,
+    enquiry.timeframe,
+    enquiry.message,
+  ]) {
+    if (customerValue) message = message.replaceAll(customerValue, '[redacted-customer-data]')
+  }
+
+  return message.slice(0, 1000)
+}
+
+function providerErrorDetails(error: unknown, enquiry: Enquiry, apiKey: string) {
+  const source = asRecord(error)
+  const cause = asRecord(source.cause)
+  const response = asRecord(source.response)
+
+  return {
+    name: safeLogText(source.name, enquiry, apiKey),
+    message: safeLogText(source.message, enquiry, apiKey),
+    statusCode: typeof source.statusCode === 'number' ? source.statusCode : null,
+    code: safeLogText(source.code ?? cause.code, enquiry, apiKey),
+    cause: Object.keys(cause).length
+      ? {
+          name: safeLogText(cause.name, enquiry, apiKey),
+          message: safeLogText(cause.message, enquiry, apiKey),
+          code: safeLogText(cause.code, enquiry, apiKey),
+        }
+      : undefined,
+    response: Object.keys(response).length
+      ? {
+          status: typeof response.status === 'number' ? response.status : undefined,
+          statusText: safeLogText(response.statusText, enquiry, apiKey),
+          code: safeLogText(response.code, enquiry, apiKey),
+          message: safeLogText(response.message, enquiry, apiKey),
+          requestId: safeLogText(response.requestId, enquiry, apiKey),
+        }
+      : undefined,
+  }
+}
+
+function logProviderFailure(
+  event: string,
+  error: unknown,
+  enquiry: Enquiry,
+  apiKey: string,
+  headers?: Record<string, string> | null,
+) {
+  console.error(JSON.stringify({
+    event,
+    provider: 'resend',
+    error: providerErrorDetails(error, enquiry, apiKey),
+    response: headers ? {
+      requestId: safeLogText(headers['x-resend-id'] ?? headers['x-request-id'], enquiry, apiKey),
+      retryAfter: safeLogText(headers['retry-after'], enquiry, apiKey),
+      rateLimitRemaining: safeLogText(headers['ratelimit-remaining'], enquiry, apiKey),
+    } : undefined,
+  }))
+}
+
+function providerFailureStatus(error: unknown) {
+  return typeof asRecord(error).statusCode === 'number' ? 502 : 503
+}
+
 function isRateLimited(ip: string) {
   const now = Date.now()
   const recent = (rateLimit.get(ip) || []).filter(timestamp => now - timestamp < rateWindowMs)
@@ -91,25 +172,30 @@ export async function POST(request: Request) {
     return Response.json({ error: 'rate_limited' }, { status: 429 })
   }
 
-  let payload: Partial<Enquiry>
+  let payload: unknown
   try {
     payload = await request.json()
   } catch {
     return Response.json({ error: 'invalid_request' }, { status: 400 })
   }
 
+  if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
+    return Response.json({ error: 'invalid_request' }, { status: 400 })
+  }
+
+  const fields = payload as Partial<Enquiry>
   const enquiry: Enquiry = {
-    name: clean(payload.name),
-    business: clean(payload.business),
-    email: clean(payload.email),
-    service: clean(payload.service),
-    budget: clean(payload.budget),
-    message: clean(payload.message),
-    phone: clean(payload.phone),
-    currentWebsite: clean(payload.currentWebsite),
-    timeframe: clean(payload.timeframe),
-    website: clean(payload.website),
-    requestId: clean(payload.requestId),
+    name: clean(fields.name),
+    business: clean(fields.business),
+    email: clean(fields.email),
+    service: clean(fields.service),
+    budget: clean(fields.budget),
+    message: clean(fields.message),
+    phone: clean(fields.phone),
+    currentWebsite: clean(fields.currentWebsite),
+    timeframe: clean(fields.timeframe),
+    website: clean(fields.website),
+    requestId: clean(fields.requestId),
   }
 
   if (enquiry.website) {
@@ -124,32 +210,44 @@ export async function POST(request: Request) {
     return Response.json({ error: 'duplicate_request' }, { status: 409 })
   }
 
-  const apiKey = process.env.RESEND_API_KEY
-  const from = process.env.RESEND_FROM_EMAIL
+  const apiKey = process.env.RESEND_API_KEY?.trim()
+  const from = process.env.RESEND_FROM_EMAIL?.trim()
   if (!apiKey || !from) {
-    console.error('Project enquiry email is not configured: RESEND_API_KEY and RESEND_FROM_EMAIL are required.')
+    console.error(JSON.stringify({
+      event: 'project_enquiry_email_not_configured',
+      missing: [
+        ...(!apiKey ? ['RESEND_API_KEY'] : []),
+        ...(!from ? ['RESEND_FROM_EMAIL'] : []),
+      ],
+    }))
     return Response.json({ error: 'email_not_configured' }, { status: 500 })
   }
 
+  let resend: Resend
   try {
-    const resend = new Resend(apiKey)
+    resend = new Resend(apiKey)
     const result = await resend.emails.send({
       from,
       to: destination,
       replyTo: enquiry.email,
       subject: `New Project Enquiry — ${enquiry.business || enquiry.name}`,
       html: enquiryEmail(enquiry),
-      text: `SIHLEB\nNEW PROJECT ENQUIRY\n\nCONTACT\nName: ${enquiry.name}\nBusiness: ${enquiry.business}\nEmail: ${enquiry.email}\n\nPROJECT\nService: ${enquiry.service}\nBudget: ${enquiry.budget}\n\nMessage:\n${enquiry.message}\n\nSubmitted via: sihleb.co.za`,
+      text: `SIHLEB\nNEW PROJECT ENQUIRY\n\nCONTACT\nName: ${enquiry.name}\nBusiness: ${enquiry.business}\nEmail: ${enquiry.email}\nPhone / WhatsApp: ${enquiry.phone || 'Not provided'}\nCurrent website: ${enquiry.currentWebsite || 'Not provided'}\n\nPROJECT\nService: ${enquiry.service}\nBudget: ${enquiry.budget}\nTimeframe: ${enquiry.timeframe || 'Not sure yet'}\n\nMessage:\n${enquiry.message}\n\nSubmitted via: sihleb.co.za`,
     })
 
     if (result.error) {
-      console.error('Resend project enquiry failed:', result.error.name)
-      return Response.json({ error: 'email_failed' }, { status: 500 })
+      logProviderFailure('resend_project_enquiry_failed', result.error, enquiry, apiKey, result.headers)
+      return Response.json({ error: 'email_failed' }, { status: providerFailureStatus(result.error) })
     }
 
     processedRequestIds.add(enquiry.requestId)
     if (processedRequestIds.size > 1000) processedRequestIds.delete(processedRequestIds.values().next().value as string)
+  } catch (error) {
+    logProviderFailure('resend_project_enquiry_failed', error, enquiry, apiKey)
+    return Response.json({ error: 'email_failed' }, { status: providerFailureStatus(error) })
+  }
 
+  try {
     const confirmation = await resend.emails.send({
       from,
       to: enquiry.email,
@@ -158,10 +256,12 @@ export async function POST(request: Request) {
       text: `Hi ${enquiry.name},\n\nThanks for reaching out to SihleB.\n\nWe’ve received your project enquiry and will take a look at what you’re building.\n\nWe’ll be in touch soon.\n\nSihleB Digital Studio\nDESIGN. BUILD. HOST.\nhello@sihleb.co.za`,
     })
 
-    if (confirmation.error) console.error('Resend confirmation email failed:', confirmation.error.name)
-    return Response.json({ ok: true })
+    if (confirmation.error) {
+      logProviderFailure('resend_confirmation_email_failed', confirmation.error, enquiry, apiKey, confirmation.headers)
+    }
   } catch (error) {
-    console.error('Resend project enquiry request failed:', error instanceof Error ? error.message : 'unknown error')
-    return Response.json({ error: 'email_failed' }, { status: 500 })
+    logProviderFailure('resend_confirmation_email_failed', error, enquiry, apiKey)
   }
+
+  return Response.json({ ok: true })
 }

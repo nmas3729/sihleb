@@ -210,6 +210,8 @@ h2 em { color:var(--accent-text); font-style:normal; }
 .editorial-plan .button { margin-top:auto; justify-self:start; align-self:start; }
 .pricing-footer { display:flex; justify-content:space-between; align-items:center; margin-top:34px; padding-top:28px; border-top:1px solid var(--navy); }
 .pricing-footer > span { max-width:430px; font-size:13px; color:var(--muted); }
+.pricing-renewal-notes { margin-top:24px; color:var(--muted); font-size:12px; line-height:1.6; }
+.pricing-renewal-notes p { margin:0 0 6px; }
 
 @media (max-width: 700px) {
   .editorial-plans { display:grid; grid-template-columns:1fr; }

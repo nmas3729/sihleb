@@ -1,12 +1,12 @@
 import { Resend } from 'resend'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 const destination = 'hello@sihleb.co.za'
 export const runtime = 'nodejs'
+const maxRequestBodyBytes = 10 * 1024
 const maxMessageLength = 5000
 const services = new Set(['Web Design', 'Web Development', 'E-commerce', 'SEO Foundations', 'Hosting', 'Website Care', 'Not sure yet — I’d like some guidance.'])
 const budgets = new Set(['Not sure yet', 'R7,500 Essential', 'R13,700 Launch', 'R18,500 Growth', 'R32,000+ Signature'])
-const rateWindowMs = 10 * 60 * 1000
-const rateLimit = new Map<string, number[]>()
 const processedRequestIds = new Set<string>()
 
 type Enquiry = {
@@ -20,6 +20,7 @@ type Enquiry = {
   currentWebsite: string
   timeframe: string
   website: string
+  website_url: string
   requestId: string
 }
 
@@ -39,6 +40,11 @@ function escapeHtml(value: string) {
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+}
+
+function isValidPhone(value: string) {
+  const digits = value.replace(/\D/g, '')
+  return /^\+?[0-9][0-9\s().-]*$/.test(value) && digits.length >= 7 && digits.length <= 15
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -122,12 +128,10 @@ function providerFailureStatus(error: unknown) {
   return typeof asRecord(error).statusCode === 'number' ? 502 : 503
 }
 
-function isRateLimited(ip: string) {
-  const now = Date.now()
-  const recent = (rateLimit.get(ip) || []).filter(timestamp => now - timestamp < rateWindowMs)
-  recent.push(now)
-  rateLimit.set(ip, recent)
-  return recent.length > 5
+function getClientIp(request: Request) {
+  // Only trust this header behind a proxy or host that overwrites x-forwarded-for.
+  if (process.env.TRUST_PROXY_HEADERS !== 'true') return 'unknown'
+  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 }
 
 function enquiryEmail(enquiry: Enquiry) {
@@ -149,7 +153,7 @@ function enquiryEmail(enquiry: Enquiry) {
         <strong>Name:</strong> ${name}<br />
         <strong>Business:</strong> ${business}<br />
         <strong>Email:</strong> ${email}
-          <br /><strong>Phone / WhatsApp:</strong> ${escapeHtml(enquiry.phone) || 'Not provided'}
+          <br /><strong>Telephone Number:</strong> ${escapeHtml(enquiry.phone)}
           <br /><strong>Current website:</strong> ${escapeHtml(enquiry.currentWebsite) || 'Not provided'}
       </div>
       <p style="margin:28px 0 10px;color:#626970;font-size:11px;font-weight:700;letter-spacing:2px;">PROJECT</p>
@@ -166,15 +170,29 @@ function enquiryEmail(enquiry: Enquiry) {
 }
 
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+  const contentLength = request.headers.get('content-length')
+  if (contentLength && Number(contentLength) > maxRequestBodyBytes) {
+    return Response.json({ error: 'request_too_large' }, { status: 413 })
+  }
 
-  if (isRateLimited(ip)) {
+  if (await checkRateLimit(getClientIp(request))) {
     return Response.json({ error: 'rate_limited' }, { status: 429 })
+  }
+
+  let body: string
+  try {
+    body = await request.text()
+  } catch {
+    return Response.json({ error: 'invalid_request' }, { status: 400 })
+  }
+
+  if (new TextEncoder().encode(body).byteLength > maxRequestBodyBytes) {
+    return Response.json({ error: 'request_too_large' }, { status: 413 })
   }
 
   let payload: unknown
   try {
-    payload = await request.json()
+    payload = JSON.parse(body)
   } catch {
     return Response.json({ error: 'invalid_request' }, { status: 400 })
   }
@@ -195,14 +213,15 @@ export async function POST(request: Request) {
     currentWebsite: clean(fields.currentWebsite),
     timeframe: clean(fields.timeframe),
     website: clean(fields.website),
+    website_url: clean(fields.website_url),
     requestId: clean(fields.requestId),
   }
 
-  if (enquiry.website) {
+  if (enquiry.website || enquiry.website_url) {
     return Response.json({ ok: true })
   }
 
-  if (!enquiry.name || !enquiry.business || !enquiry.email || !services.has(enquiry.service) || !budgets.has(enquiry.budget) || !enquiry.message || !enquiry.requestId || !isValidEmail(enquiry.email) || enquiry.name.length > 120 || enquiry.business.length > 160 || enquiry.email.length > 254 || enquiry.message.length > maxMessageLength || enquiry.phone.length > 40 || enquiry.currentWebsite.length > 300 || enquiry.timeframe.length > 80 || enquiry.requestId.length > 100) {
+  if (!enquiry.name || !enquiry.business || !enquiry.email || !enquiry.phone || !services.has(enquiry.service) || !budgets.has(enquiry.budget) || !enquiry.message || !enquiry.requestId || !isValidEmail(enquiry.email) || !isValidPhone(enquiry.phone) || enquiry.name.length > 120 || enquiry.business.length > 160 || enquiry.email.length > 254 || enquiry.message.length > maxMessageLength || enquiry.phone.length > 40 || enquiry.currentWebsite.length > 300 || enquiry.timeframe.length > 80 || enquiry.requestId.length > 100) {
     return Response.json({ error: 'invalid_fields' }, { status: 400 })
   }
 
@@ -232,7 +251,7 @@ export async function POST(request: Request) {
       replyTo: enquiry.email,
       subject: `New Project Enquiry — ${enquiry.business || enquiry.name}`,
       html: enquiryEmail(enquiry),
-      text: `SIHLEB\nNEW PROJECT ENQUIRY\n\nCONTACT\nName: ${enquiry.name}\nBusiness: ${enquiry.business}\nEmail: ${enquiry.email}\nPhone / WhatsApp: ${enquiry.phone || 'Not provided'}\nCurrent website: ${enquiry.currentWebsite || 'Not provided'}\n\nPROJECT\nService: ${enquiry.service}\nBudget: ${enquiry.budget}\nTimeframe: ${enquiry.timeframe || 'Not sure yet'}\n\nMessage:\n${enquiry.message}\n\nSubmitted via: sihleb.co.za`,
+      text: `SIHLEB\nNEW PROJECT ENQUIRY\n\nCONTACT\nName: ${enquiry.name}\nBusiness: ${enquiry.business}\nEmail: ${enquiry.email}\nTelephone Number: ${enquiry.phone}\nCurrent website: ${enquiry.currentWebsite || 'Not provided'}\n\nPROJECT\nService: ${enquiry.service}\nBudget: ${enquiry.budget}\nTimeframe: ${enquiry.timeframe || 'Not sure yet'}\n\nMessage:\n${enquiry.message}\n\nSubmitted via: sihleb.co.za`,
     })
 
     if (result.error) {

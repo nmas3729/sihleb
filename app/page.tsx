@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { FormEvent, useEffect, useState } from 'react'
 import { organizationSchema, serviceSchema, websiteSchema } from '@/lib/seo'
 import { trackEvent } from '@/lib/analytics'
+import { Testimonials } from '@/components/Testimonials'
+import { BUSINESS, DOMAIN_RENEWAL_NOTE, HOSTING_RENEWAL } from '@/lib/site-data'
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -73,9 +75,9 @@ const faqs = [
 
 const clientProjects = [
   { name: 'Travel Class SA', industry: 'Travel management', url: 'https://travelclasssa.com', detail: 'A South African travel-management company coordinating complete journeys.' },
-  { name: 'Siko Mining', industry: 'Mining services', url: 'https://sikomining.co.za', detail: 'A mining-services business supporting the junior mining sector.' },
+  { name: 'Siko Mining Services', industry: 'Mining services', url: 'https://sikomining.co.za', detail: 'A mining-services business supporting the junior mining sector.' },
   { name: 'NMAS Innovations', industry: 'Client website', url: 'https://nmas.co.za', detail: 'A genuine SihleB client relationship. Further project detail is not published here without approval.' },
-  { name: 'Eclipse Power', industry: 'Solar and energy', url: 'https://eclipsepower.co.za', detail: 'A South African solar and battery systems business.' },
+  { name: 'Eclipse Power Energy', industry: 'Solar and energy', url: 'https://eclipsepower.co.za', detail: 'A South African solar and battery systems business.' },
   { name: 'Lolly Beauty Bar', industry: 'Beauty', url: 'https://lollybeautybar.co.za', detail: 'A nail-bar business offering gel manicure and acrylic sculpt services.' },
 ]
 
@@ -215,10 +217,12 @@ export default function Page() {
 
       <section id="work" className="client-portfolio dark-section"><div className="portfolio-head"><div><div className="section-kicker">[ CLIENT WORK ]</div><h2>BUILT FOR REAL<br /><em>BUSINESSES.</em></h2></div><a className="text-link light-link" href="#contact">START A PROJECT <ArrowUpRight size={15} /></a></div><p className="client-portfolio-intro">A selection of genuine client relationships and the public-facing businesses behind them. These are real client work, not concept directions.</p><div className="client-project-list">{clientProjects.map((project, index) => <a className="client-project" href={project.url} target="_blank" rel="noreferrer" key={project.name}><span className="service-num">0{index + 1}</span><div><h3>{project.name}</h3><p>{project.industry}</p><small>{project.detail}</small></div><ArrowUpRight className="row-arrow" size={22} /></a>)}</div></section>
 
+      <Testimonials />
+
       <section id="concept-work" className="portfolio dark-section" onMouseMove={(event) => setCursor({ x: event.clientX, y: event.clientY, visible: true })} onMouseLeave={() => setCursor((current) => ({ ...current, visible: false }))}>
   <div className={`portfolio-cursor ${cursor.visible ? 'is-visible' : ''}`} style={{ left: cursor.x, top: cursor.y }}>
     VIEW PROJECT <ArrowUpRight size={12} />
-  </div><div className="portfolio-head"><div><div className="section-kicker">[ CONCEPT WORK ]</div><h2>BUILT TO BE<br /><em>REMEMBERED.</em></h2></div><a className="text-link light-link" href="#contact">START A PROJECT <ArrowUpRight size={15} /></a></div><p className="portfolio-note">These concept directions are included for exploration and presentation only. They are not presented as commissioned client work or as business outcomes.</p><div className="project-grid"><a className="project project-main" href="#contact" aria-label="Discuss an After Dark hospitality concept"><div className="project-art art-one"><span>AFTER<br />DARK</span><b>AD</b></div><div className="project-meta"><span>CONCEPT DIRECTION / HOSPITALITY</span><ArrowUpRight size={19} /></div></a><a className="project project-side" href="#contact" aria-label="Discuss a Field Notes consulting concept"><div className="project-art art-two"><span>FIELD<br />NOTES</span><div className="grid-mark">{'///'}</div></div><div className="project-meta"><span>CONCEPT DIRECTION / CONSULTING</span><ArrowUpRight size={19} /></div></a><a className="project project-wide" href="#contact" aria-label="Discuss a Good Work creative studio concept"><div className="project-art art-three"><span>THE<br />GOOD<br /><i>WORK</i></span><div className="circle-mark">TGW</div></div><div className="project-meta"><span>CONCEPT DIRECTION / CREATIVE STUDIO</span><ArrowUpRight size={19} /></div></a></div></section>
+  </div><div className="portfolio-head"><div><div className="section-kicker">[ CONCEPT WORK ]</div><h2>DAILY BACKUPS<br /><em>AND SSL INCLUDED.</em></h2></div><a className="text-link light-link" href="#contact">START A PROJECT <ArrowUpRight size={15} /></a></div><p className="portfolio-note">These concept directions are included for exploration and presentation only. They are not presented as commissioned client work or as business outcomes.</p><div className="project-grid"><a className="project project-main" href="#contact" aria-label="Discuss an After Dark hospitality concept"><div className="project-art art-one"><span>AFTER<br />DARK</span><b>AD</b></div><div className="project-meta"><span>CONCEPT DIRECTION / HOSPITALITY</span><ArrowUpRight size={19} /></div></a><a className="project project-side" href="#contact" aria-label="Discuss a Field Notes consulting concept"><div className="project-art art-two"><span>FIELD<br />NOTES</span><div className="grid-mark">{'///'}</div></div><div className="project-meta"><span>CONCEPT DIRECTION / CONSULTING</span><ArrowUpRight size={19} /></div></a><a className="project project-wide" href="#contact" aria-label="Discuss a Good Work creative studio concept"><div className="project-art art-three"><span>THE<br />GOOD<br /><i>WORK</i></span><div className="circle-mark">TGW</div></div><div className="project-meta"><span>CONCEPT DIRECTION / CREATIVE STUDIO</span><ArrowUpRight size={19} /></div></a></div></section>
 
       <section className="why section-light"><div className="why-visual"><div className="role role-a">DESIGN</div><div className="role role-b">BUILD</div><div className="role role-c">HOST</div><div className="signal-path"><span className={`signal-dot stage-${signalStage}`} /></div><div className="why-s">S<span>B</span></div><div className="online-lockup"><i /> ONLINE</div></div><div className="why-copy"><div className="section-kicker">[ WHY SIHLEB ]</div><h2>ONE TEAM.<br /><em>NO TECHNICAL<br />HEADACHE.</em></h2><p className="large-copy">Your website shouldn’t feel like a puzzle you’re responsible for solving. We bring the creative, practical and technical pieces together — so you can get on with your business.</p><p className="why-detail">DESIGN <span>→</span> BUILD <span>→</span> HOST <span>→</span> SUPPORT<br /><strong>ONE TEAM. ONE POINT OF CONTACT.</strong></p><a className="text-link dark-link" href="#about">MEET SIHLEB <ArrowUpRight size={15} /></a></div></section>
 
@@ -226,16 +230,89 @@ export default function Page() {
 
       <section id="hosting" className="hosting dark-section"><div className="hosting-copy"><div className="section-kicker">[ HOSTING + SUPPORT ]</div><h2>A BETTER HOME<br /><em>FOR YOUR WEBSITE.</em></h2><p className="large-copy">Launch day is not the finish line. We keep your site fast, secure and cared for, so you don’t have to think about what’s happening behind the scenes.</p><a className="button button-blue" href="#plans" onClick={() => handleServiceInterest('Hosting')}>VIEW PACKAGES <ArrowUpRight size={16} /></a></div><div className="infra"><div className="infra-node">DOMAIN</div><div className="infra-line"><i /></div><div className="infra-node">DESIGN</div><div className="infra-line"><i /></div><div className="infra-node">BUILD</div><div className="infra-line"><i /></div><div className="infra-node active">HOST / SIHLEB</div><div className="infra-line"><i /></div><div className="infra-node online-node">● ONLINE</div></div><div className="hosting-features">{['Reliable hosting','SSL included','Daily backups','Fast delivery','Active security','Human support'].map((item, i) => <span key={item}><b>0{i + 1}</b>{item}</span>)}</div></section>
 
-      <section id="plans" className="plans section-light"><div className="section-heading"><div><div className="section-kicker">[ WEBSITE INVESTMENT ]</div><h2>BUILT FOR<br /><em>WHAT&apos;S NEXT.</em></h2></div></div><div className="plan-list editorial-plans">{plans.map((plan, index) => <article className={`plan editorial-plan ${plan.featured ? 'featured' : ''}`} key={plan.name}><div className="plan-top"><span>{String(index).padStart(2, '0')} / {plan.name}</span>{plan.featured && <span className="plan-badge">MOST POPULAR</span>}</div><div className="plan-price"><small>FROM</small>{plan.price}</div><p>{plan.intro}</p><ul>{plan.features.map(feature => <li key={feature}><Check size={14} />{feature}</li>)}</ul>{plan.note && <p className="plan-note">{plan.note}</p>}<a className={`button ${plan.featured ? 'button-blue' : 'button-outline'}`} href="#contact" onClick={() => handlePackageInterest(plan)}>DISCUSS YOUR PROJECT <ArrowUpRight size={15} /></a></article>)}</div><div className="pricing-footer"><span>All packages are starting prices. Final pricing depends on scope, content and functionality.</span><a className="button button-blue" href="#contact">DISCUSS YOUR PROJECT <ArrowUpRight size={15} /></a></div></section>
+      <section id="plans" className="plans section-light">
+        <div className="section-heading">
+          <div>
+            <div className="section-kicker">[ WEBSITE INVESTMENT ]</div>
+            <h2>BUILT FOR<br /><em>WHAT&apos;S NEXT.</em></h2>
+          </div>
+        </div>
+        <div className="plan-list editorial-plans">
+          {plans.map((plan, index) => (
+            <article
+              className={`plan editorial-plan ${plan.featured ? 'featured' : ''}`}
+              key={plan.name}
+            >
+              <div className="plan-top">
+                <span>{String(index).padStart(2, '0')} / {plan.name}</span>
+                {plan.featured && <span className="plan-badge">MOST POPULAR</span>}
+              </div>
+              <p>{plan.intro}</p>
+              <ul>
+                {plan.features.map(feature => (
+                  <li key={feature}><Check size={14} />{feature}</li>
+                ))}
+              </ul>
+              {plan.note && <p className="plan-note">{plan.note}</p>}
+              <a
+                className={`button ${plan.featured ? 'button-blue' : 'button-outline'}`}
+                href="#contact"
+                onClick={() => handlePackageInterest(plan)}
+              >
+                DISCUSS YOUR PROJECT <ArrowUpRight size={15} />
+              </a>
+            </article>
+          ))}
+        </div>
+        <div className="pricing-renewal-notes">
+          <p>
+            {HOSTING_RENEWAL.period.startsWith('TODO')
+              ? `Hosting renews at ${HOSTING_RENEWAL.amount} after the first 12 months`
+              : `Hosting renews at ${HOSTING_RENEWAL.amount} ${HOSTING_RENEWAL.period}, after the first 12 months.`}
+          </p>
+          <p>{DOMAIN_RENEWAL_NOTE}</p>
+        </div>
+        <div className="pricing-footer">
+          <span>Every project is individually scoped. Request a tailored quotation based on your business requirements, content and functionality.</span>
+          <a className="button button-blue" href="#contact">
+            DISCUSS YOUR PROJECT <ArrowUpRight size={15} />
+          </a>
+        </div>
+      </section>
+
+      <section className="statement section-light">
+        <div className="section-kicker">[ SIHLEB EXPRESS / SMALL BUSINESS WEBSITE OFFER ]</div>
+        <div className="statement-layout">
+          <h2>GET YOUR BUSINESS<br /><em>ONLINE.</em></h2>
+          <div>
+            <p className="large-copy">A professional online presence, made simpler.</p>
+            <p className="muted-copy">Quality business websites for small businesses looking for a straightforward, affordable way to establish themselves online.</p>
+            <p className="statement-support">Designed for simplicity. Built for your business.</p>
+            <a className="button button-blue" href="#contact">
+              EXPLORE THE OFFER <ArrowUpRight size={16} />
+            </a>
+          </div>
+        </div>
+        <div className="investment-statement">
+          <div>
+            <strong>SihleB Express</strong>
+            <p>Predefined website structure, standard business functionality and a defined project scope. Customisation is limited; each website is professionally reviewed before launch.</p>
+          </div>
+          <div>
+            <strong>Custom Website Development</strong>
+            <p>Bespoke design and development, custom user experience, advanced functionality and custom integrations, with individually scoped quotations.</p>
+          </div>
+        </div>
+      </section>
 
       <section className="process section-white"><div className="section-kicker">[ HOW IT WORKS ]</div><div className="process-intro"><h2>FROM “WE SHOULD”<br /><em>TO “WE’RE LIVE.”</em></h2><p className="large-copy">No drawn-out process. No mystery. Just good work, in a straight line.</p></div><div className="process-list">{process.map((step, i) => <div className="process-step" key={step}><span>0{i + 1}</span><i /><h3>{step}</h3></div>)}</div></section>
 
-      <section id="about" className="about section-light"><div className="about-mark"><Image src="/removebg.png" alt="SihleB brand mark" width={320} height={220} /></div><div><div className="section-kicker">[ ABOUT SIHLEB ]</div><h2>DESIGN.<br />BUILD.<br /><em>HOST.</em></h2><p className="large-copy">SihleB Digital Studio is the web design and hosting division of NMAS INNOVATIONS (Pty) Ltd, a family-driven company whose name is built from the first letters of the founder’s children’s names. SihleB is named after one of them.</p><p className="large-copy">Founded in 2023 by an IT engineer with more than 25 years of experience, it started with a simple frustration: South African businesses stuck with slow, unreliable hosting, overcomplicated web projects and unclear pricing. We exist to make professional web design and dependable hosting straightforward and fairly priced.</p><p className="large-copy">You get direct communication, transparent pricing and support from the people who built your site, from the first conversation to long-term care.</p><a className="text-link dark-link" href="#contact">MORE ABOUT SIHLEB <ArrowUpRight size={15} /></a></div></section>
+      <section id="about" className="about section-light"><div className="about-mark"><Image src="/removebg.png" alt="SihleB brand mark" width={320} height={220} /></div><div><div className="section-kicker">[ ABOUT SIHLEB ]</div><h2>DESIGN.<br />BUILD.<br /><em>HOST.</em></h2><p className="large-copy">SihleB Digital Studio is a small South African studio providing web design, development, hosting and ongoing support to businesses.</p><p className="large-copy">We work directly with clients to bring thoughtful design and dependable technology together, from the first conversation through long-term website care.</p><a className="text-link dark-link" href="#contact">MORE ABOUT SIHLEB <ArrowUpRight size={15} /></a></div></section>
 
       <section id="contact" className="final-cta dark-section"><div className="cta-lines" /><div className="section-kicker">[ LET’S MAKE SOMETHING GOOD ]</div><h2>READY TO GET<br /><em>ONLINE?</em></h2><p>Tell us where you’re going. We’ll help you build the way there.</p>
-        <form className="project-form" onSubmit={handleProjectSubmit} aria-busy={formStatus === 'sending'}><div className="form-grid"><label><span>NAME</span><input name="name" type="text" autoComplete="name" required /></label><label><span>BUSINESS</span><input name="business" type="text" autoComplete="organization" required /></label><label><span>EMAIL</span><input name="email" type="email" autoComplete="email" required /></label><label><span>WHAT DO YOU NEED?</span><select name="service" defaultValue="Not sure yet — I’d like some guidance." onChange={(event) => event.currentTarget.value !== 'Not sure yet — I’d like some guidance.' && trackEvent('service_interest', { service_name: event.currentTarget.value })}><option>Web Design</option><option>Web Development</option><option>E-commerce</option><option>Hosting</option><option>Website Care</option><option>SEO Foundations</option><option>Not sure yet — I’d like some guidance.</option></select></label><label><span>BUDGET / STARTING POINT</span><select name="budget" defaultValue="Not sure yet" onChange={(event) => event.currentTarget.value !== 'Not sure yet' && trackEvent('package_interest', { package_selection: event.currentTarget.value })}><option>Not sure yet</option><option>R7,500 Essential</option><option>R13,700 Launch</option><option>R18,500 Growth</option><option>R32,000+ Signature</option></select></label><label className="form-message"><span>MESSAGE</span><textarea name="message" rows={4} required /></label><div className="form-trap" aria-hidden="true"><label>Website<input name="website" type="text" tabIndex={-1} autoComplete="off" /></label></div></div><div className="hero-actions"><button className="button button-blue" type="submit" disabled={formStatus === 'sending'}>{formStatus === 'sending' ? 'SENDING…' : 'START A PROJECT'} <ArrowUpRight size={16} /></button><a className="text-link light-link" href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp">CHAT ON WHATSAPP <ArrowUpRight size={15} /></a><a className="text-link light-link" href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA <ArrowUpRight size={15} /></a></div><div className={`form-status form-status-${formStatus}`} role="status" aria-live="polite">{formStatus === 'success' && <><strong>ENQUIRY SENT.</strong><span>Thanks — we&apos;ve received your project enquiry.<br />We&apos;ll be in touch soon.</span></>}{formStatus === 'error' && <><strong>SOMETHING WENT WRONG.</strong><span>We couldn&apos;t send your enquiry right now. Please try again or <a href="mailto:hello@sihleb.co.za">email hello@sihleb.co.za</a>.</span></>}</div></form></section>
+        <form className="project-form" onSubmit={handleProjectSubmit} aria-busy={formStatus === 'sending'}><div className="form-grid"><label><span>NAME</span><input name="name" type="text" autoComplete="name" required /></label><label><span>BUSINESS</span><input name="business" type="text" autoComplete="organization" required /></label><label><span>EMAIL</span><input name="email" type="email" autoComplete="email" required /></label><label><span>TELEPHONE NUMBER *</span><input name="phone" type="tel" autoComplete="tel" inputMode="tel" pattern="[+]?[0-9][0-9 ().-]{5,38}" title="Enter a valid telephone number." required /></label><label><span>WHAT DO YOU NEED?</span><select name="service" defaultValue="Not sure yet — I’d like some guidance." onChange={(event) => event.currentTarget.value !== 'Not sure yet — I’d like some guidance.' && trackEvent('service_interest', { service_name: event.currentTarget.value })}><option>Web Design</option><option>Web Development</option><option>E-commerce</option><option>Hosting</option><option>Website Care</option><option>SEO Foundations</option><option>Not sure yet — I’d like some guidance.</option></select></label><label><span>BUDGET / STARTING POINT</span><select name="budget" defaultValue="Not sure yet" onChange={(event) => event.currentTarget.value !== 'Not sure yet' && trackEvent('package_interest', { package_selection: event.currentTarget.value })}><option>Not sure yet</option><option>R7,500 Essential</option><option>R13,700 Launch</option><option>R18,500 Growth</option><option>R32,000+ Signature</option></select></label><label className="form-message"><span>MESSAGE</span><textarea name="message" rows={4} required /></label><div className="form-trap" aria-hidden="true"><label>Website<input name="website" type="text" tabIndex={-1} autoComplete="off" /></label><label>Website URL<input name="website_url" type="text" tabIndex={-1} autoComplete="off" /></label></div></div><div className="hero-actions"><button className="button button-blue" type="submit" disabled={formStatus === 'sending'}>{formStatus === 'sending' ? 'SENDING…' : 'START A PROJECT'} <ArrowUpRight size={16} /></button><a className="text-link light-link" href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp">CHAT ON WHATSAPP <ArrowUpRight size={15} /></a><a className="text-link light-link" href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA <ArrowUpRight size={15} /></a></div><div className={`form-status form-status-${formStatus}`} role="status" aria-live="polite">{formStatus === 'success' && <><strong>ENQUIRY SENT.</strong><span>Thanks — we&apos;ve received your project enquiry.<br />We&apos;ll be in touch soon.</span></>}{formStatus === 'error' && <><strong>SOMETHING WENT WRONG.</strong><span>We couldn&apos;t send your enquiry right now. Please try again or <a href="mailto:hello@sihleb.co.za">email hello@sihleb.co.za</a>.</span></>}</div></form></section>
 
-      <footer className="footer dark-section"><div className="footer-top"><div><Image src={logoUrl} alt="SihleB Digital Studio" width={170} height={100} /><p className="footer-division">A division of NMAS INNOVATIONS (Pty) Ltd</p></div><div className="footer-tag">WEB DESIGN + HOSTING<br /><span>BUILT TO PERFORM.<br />HOSTED TO LAST.</span><nav className="footer-nav" aria-label="Footer navigation"><a href="#services">Services</a><a href="#work">Work</a><a href="#hosting">Hosting</a><a href="#about">About</a></nav></div></div><div className="footer-bottom"><div><span>© 2026 NMAS INNOVATIONS (Pty) Ltd. All rights reserved.</span><span>WEB DESIGN + HOSTING</span></div><div><a href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp">CHAT</a><a href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA</a><a href="#top">BACK TO TOP ↑</a></div></div></footer>
+      <footer className="footer dark-section"><div className="footer-top"><div><Image src={logoUrl} alt={BUSINESS.name} width={170} height={100} /><p className="footer-division">{BUSINESS.legalName}</p>{!BUSINESS.registrationNumber.startsWith('TODO') && <p className="footer-division">Registration number: {BUSINESS.registrationNumber}</p>}{!BUSINESS.address.startsWith('TODO') && <p className="footer-division">{BUSINESS.address}</p>}<p className="footer-division">Serving South African businesses remotely across South Africa.</p></div><div className="footer-tag">WEB DESIGN + HOSTING<br /><span>DAILY BACKUPS.<br />SSL INCLUDED.</span><nav className="footer-nav" aria-label="Footer navigation"><a href="#services">Services</a><a href="#work">Work</a><a href="#hosting">Hosting</a><a href="#about">About</a></nav></div></div><div className="footer-bottom"><div><span>© 2026 {BUSINESS.legalName}. All rights reserved.</span><span>WEB DESIGN + HOSTING</span></div><div><a href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp">CHAT</a><a href="mailto:hello@sihleb.co.za">HELLO@SIHLEB.CO.ZA</a><a href="#top">BACK TO TOP ↑</a></div></div></footer>
       <section className="faq section-light"><div className="section-kicker">[ COMMON QUESTIONS ]</div><div className="section-heading"><div><h2>GOOD TO<br /><em>KNOW.</em></h2></div><p>Clear answers before we start, so you know what to expect from the project and the relationship after launch.</p></div><div className="faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<ChevronDown size={17} /></summary><p>{answer}</p></details>)}</div></section>
       <a className="whatsapp-float" href={whatsappUrl} target="_blank" rel="noreferrer" onClick={handleWhatsAppClick} aria-label="Chat with SihleB on WhatsApp"><span>●</span> CHAT <ArrowUpRight size={14} /></a>
     </main>
